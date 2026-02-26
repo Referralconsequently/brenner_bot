@@ -1827,9 +1827,12 @@ async function compileSessionArtifact(args: {
 
   for (const message of thread.messages) {
     if (typeof message.body_md !== "string" || message.body_md.trim().length === 0) continue;
-    const parsed = parseDeltaMessage(message.body_md);
     const subjectType = parseSubjectType(message.subject).type;
-    if (subjectType === "delta" && parsed.totalBlocks === 0) {
+    // Skip non-delta messages — kickoff/nudge messages may contain example
+    // ```delta fences that must not be parsed as real operations.
+    if (subjectType !== "delta") continue;
+    const parsed = parseDeltaMessage(message.body_md);
+    if (parsed.totalBlocks === 0) {
       const bodyPreview = message.body_md.trim().slice(0, 240);
       deltaFenceErrors.push({
         message_id: message.id,

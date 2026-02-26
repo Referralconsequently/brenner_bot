@@ -260,8 +260,12 @@ function validateDelta(raw: unknown, rawJson: string): ParsedDelta {
     };
   }
 
-  // Validate KILL has reason
+  // Validate KILL has reason (accept kill_reason as alias)
   if (operation === "KILL") {
+    if (isRecord(payload) && payload.kill_reason && !payload.reason) {
+      payload.reason = payload.kill_reason;
+      delete payload.kill_reason;
+    }
     if (!isRecord(payload) || typeof payload.reason !== "string") {
       return {
         valid: false,

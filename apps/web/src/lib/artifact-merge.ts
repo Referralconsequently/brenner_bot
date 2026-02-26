@@ -300,6 +300,33 @@ function deepClone<T>(obj: T): T {
 const SYSTEM_ITEM_FIELDS = new Set(["id", "killed", "killed_by", "killed_at", "kill_reason"]);
 const FORBIDDEN_PAYLOAD_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
+/**
+ * Field alias map: agents sometimes use alternative field names.
+ * Map each alias to the canonical field name the merge algorithm expects.
+ */
+const FIELD_ALIASES: Record<string, string> = {
+  title: "name",
+  protocol: "procedure",
+  kill_reason: "reason",
+  methodology: "procedure",
+  rationale: "reason",
+};
+
+/**
+ * Normalize payload fields by replacing known aliases with their canonical names.
+ * Only applies when the canonical field is not already present (avoids clobbering).
+ */
+function normalizePayloadFields(payload: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...payload };
+  for (const [alias, canonical] of Object.entries(FIELD_ALIASES)) {
+    if (alias in out && !(canonical in out)) {
+      out[canonical] = out[alias];
+      delete out[alias];
+    }
+  }
+  return out;
+}
+
 function isForbiddenPayloadKey(key: string): boolean {
   return FORBIDDEN_PAYLOAD_KEYS.has(key);
 }
@@ -451,8 +478,9 @@ function applyAdd(
     return false;
   }
 
+  const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
   const sanitizedPayload: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(payload)) {
+  for (const [key, value] of Object.entries(normalizedPayload)) {
     if (SYSTEM_ITEM_FIELDS.has(key)) continue;
     if (isForbiddenPayloadKey(key)) {
       warnings.push({
@@ -502,8 +530,9 @@ function applyEdit(
         return false;
       }
 
+      const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
       const sanitizedPayload: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(payload)) {
+      for (const [key, value] of Object.entries(normalizedPayload)) {
         if (SYSTEM_ITEM_FIELDS.has(key)) continue;
         if (isForbiddenPayloadKey(key)) {
           warnings.push({
@@ -528,11 +557,12 @@ function applyEdit(
 
     // Merge fields into existing research thread
     if (isRecord(payload)) {
+      const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
       const rt = artifact.sections.research_thread;
       const rtRecord = rt as unknown as Record<string, unknown>;
-      const shouldReplace = (payload as Record<string, unknown>).replace === true;
+      const shouldReplace = normalizedPayload.replace === true;
 
-      for (const [key, value] of Object.entries(payload)) {
+      for (const [key, value] of Object.entries(normalizedPayload)) {
         if (SYSTEM_ITEM_FIELDS.has(key)) continue;
         if (isForbiddenPayloadKey(key)) {
           warnings.push({
@@ -583,9 +613,10 @@ function applyEdit(
 
   // Merge payload fields
   if (isRecord(payload)) {
-    const shouldReplace = (payload as Record<string, unknown>).replace === true;
+    const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
+    const shouldReplace = normalizedPayload.replace === true;
     const itemRecord = item as unknown as Record<string, unknown>;
-    for (const [key, value] of Object.entries(payload)) {
+    for (const [key, value] of Object.entries(normalizedPayload)) {
       if (key === "replace") continue;
       if (SYSTEM_ITEM_FIELDS.has(key)) continue;
       if (isForbiddenPayloadKey(key)) {
