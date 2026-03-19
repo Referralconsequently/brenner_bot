@@ -330,6 +330,44 @@ function isForbiddenPayloadKey(key: string): boolean {
   return FORBIDDEN_PAYLOAD_KEYS.has(key);
 }
 
+/**
+ * Domain fields that MUST be strings. When an LLM emits an object or array
+ * for one of these, we JSON-stringify it so downstream code (e.g. `.trim()`)
+ * never crashes on a non-string value.
+ */
+const DOMAIN_STRING_FIELDS = new Set([
+  "calculation",
+  "statement",
+  "claim",
+  "mechanism",
+  "procedure",
+  "discriminates",
+  "potency_check",
+  "feasibility",
+  "observation",
+  "attack",
+  "evidence",
+  "current_status",
+  "implication",
+  "resolution_plan",
+  "proposed_alternative",
+  "context",
+  "why_it_matters",
+  "condition",
+  "load",
+  "test",
+  "name",
+]);
+
+/** Coerce known domain fields to strings in-place. */
+function coerceDomainStrings(payload: Record<string, unknown>): void {
+  for (const field of DOMAIN_STRING_FIELDS) {
+    if (field in payload && typeof payload[field] !== "string") {
+      payload[field] = JSON.stringify(payload[field]);
+    }
+  }
+}
+
 function getItemsForSection(artifact: Artifact, section: DeltaSection): BaseItem[] {
   if (section === "research_thread") {
     return artifact.sections.research_thread ? [artifact.sections.research_thread] : [];
@@ -491,6 +529,10 @@ function applyAdd(
     }
     sanitizedPayload[key] = value;
   }
+
+  // Type-coerce known domain fields that must be strings.
+  // LLMs occasionally emit object-valued payloads for these fields (e.g., { calculation: { ... } }).
+  coerceDomainStrings(sanitizedPayload);
 
   const newItem: BaseItem = {
     ...sanitizedPayload,
@@ -1604,7 +1646,7 @@ export function lintArtifact(artifact: Artifact): LintReport {
         fix: "Add a non-empty statement field",
       });
     }
-    if (a.scale_check === true && (!a.calculation || a.calculation.trim().length === 0)) {
+    if (a.scale_check === true && (!a.calculation || (typeof a.calculation === "string" && a.calculation.trim().length === 0))) {
       pushViolation(violations, {
         id: "WA-003",
         severity: "warning",

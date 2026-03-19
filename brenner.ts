@@ -1178,7 +1178,7 @@ async function getCassMemoryContext(task: string, options: CassMemoryContextOpti
 
   const argv: string[] = [cmPath, "context", task, "--json"];
   if (options.workspace) argv.push("--workspace", options.workspace);
-  if (options.top !== undefined) argv.push("--top", String(options.top));
+  if (options.top !== undefined) argv.push("--limit", String(options.top));
   if (options.history !== undefined) argv.push("--history", String(options.history));
   if (options.days !== undefined) argv.push("--days", String(options.days));
   if (options.logContext) argv.push("--log-context");
@@ -1345,7 +1345,7 @@ Commands:
   version
   doctor [--json] [--manifest <path>] [--agent-mail] [--skip-ntm] [--skip-cass] [--skip-cm] [--skip-agents]
   upgrade [--version <ver>]
-  memory context <task> [--top <n>] [--history <n>] [--days <n>] [--workspace <path>] [--log-context] [--session <id>]
+  memory context <task> [--limit <n>] [--history <n>] [--days <n>] [--workspace <path>] [--log-context] [--session <id>]
   excerpt build [--sections <A,B>] [--tags <A,B>] [--limit <n>] [--theme <s>] [--ordering <relevance|chronological>]
                [--max-total-words <n>] [--max-quote-words <n>] [--transcript-file <path>] [--quote-bank-file <path>] [--json]
   corpus search <query> [--limit <n>] [--docs <A,B>] [--category <s>] [--model <s>] [--project-key <abs-path>] [--json]
