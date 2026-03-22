@@ -12,25 +12,30 @@ Repository: <https://github.com/Dicklesworthstone/brenner_bot>
 
 17 commits since v0.3.0, spanning 2026-01-07 through 2026-03-18.
 
-### Bug Fixes
+### Artifact Merge & Delta Pipeline
 
+- Promote "reason" to first-class system field, remove kill_reason alias ([1d860fb](https://github.com/Dicklesworthstone/brenner_bot/commit/1d860fb34d125e4882e427fbfa5220157c94a823))
+- Fix delta fence leak, field aliasing, and KILL reason normalization ([5606c92](https://github.com/Dicklesworthstone/brenner_bot/commit/5606c92da5b37689f529b8464093c84190c52c4a))
 - Resolve three crash/compat bugs in memory context and artifact merge ([b43ed40](https://github.com/Dicklesworthstone/brenner_bot/commit/b43ed407c53387867e1becd38f68b54c62fcf532))
+
+### Toolchain & Dependencies
+
 - Update toolchain manifest pins to match tested versions ([3534cbb](https://github.com/Dicklesworthstone/brenner_bot/commit/3534cbbd39a6a36442e0765db6b8cb38b4226442))
 - Update stale NTM and CASS version pins in toolchain manifest ([18bc01b](https://github.com/Dicklesworthstone/brenner_bot/commit/18bc01bba922f358fb66838abbb0e8e965e46973))
-- Promote "reason" to first-class system field, remove kill_reason alias in artifact merge ([1d860fb](https://github.com/Dicklesworthstone/brenner_bot/commit/1d860fb34d125e4882e427fbfa5220157c94a823))
-- Delta fence leak, field aliasing, KILL reason normalization ([5606c92](https://github.com/Dicklesworthstone/brenner_bot/commit/5606c92da5b37689f529b8464093c84190c52c4a))
-- Update tests and regex for operator-library parsing ([d2ff760](https://github.com/Dicklesworthstone/brenner_bot/commit/d2ff7600cdd88b5ca60c6eb617a45629e71e1e10))
+
+### Code Quality & Testing
+
 - Resolve ESLint set-state-in-effect errors in React hooks ([bc4acf8](https://github.com/Dicklesworthstone/brenner_bot/commit/bc4acf87b3a3201d161d888cfde8b85bb953e495))
+- Update tests and regex for operator-library parsing ([d2ff760](https://github.com/Dicklesworthstone/brenner_bot/commit/d2ff7600cdd88b5ca60c6eb617a45629e71e1e10))
 - Add afterEach cleanup to prevent /tmp inode exhaustion in tests ([44b5b67](https://github.com/Dicklesworthstone/brenner_bot/commit/44b5b67d6f47d1c8c47692c26b758b357fad360e))
 
-### Chores
+### Licensing & Metadata
 
 - Update license to MIT with OpenAI/Anthropic Rider ([1b67af2](https://github.com/Dicklesworthstone/brenner_bot/commit/1b67af2d34194a19d87b3c0277ab4ea32587b85a))
 - Add MIT License file ([5d5a99e](https://github.com/Dicklesworthstone/brenner_bot/commit/5d5a99e1820cecdcb54283b42b9353ba29cc0c48))
 - Add GitHub social preview image ([5abfd0e](https://github.com/Dicklesworthstone/brenner_bot/commit/5abfd0ebb8f184d9ad34c86ec58668260da95f0c))
-- Remove tracked node_modules/.vite cache ([24880ac](https://github.com/Dicklesworthstone/brenner_bot/commit/24880ac78aaab91c939c5aadf1909dab54bb0ddf))
 
-### CI
+### CI/CD
 
 - Add notify-acfs workflow for ACFS lesson registry sync ([b4c3273](https://github.com/Dicklesworthstone/brenner_bot/commit/b4c3273df96dbd5c5cb025ada72810f9ba423b1d))
 - Improve GitHub Actions workflows with best practices ([66d01ac](https://github.com/Dicklesworthstone/brenner_bot/commit/66d01acae519821aebf23871b434499b3e207c23))
@@ -51,61 +56,50 @@ Compare: [v0.2.0...v0.3.0](https://github.com/Dicklesworthstone/brenner_bot/comp
 - Prevent command whitelist bypass via path injection in experiment execution API ([4cdffbd](https://github.com/Dicklesworthstone/brenner_bot/commit/4cdffbdde1ac725a4164ecf3b9beb4f7f31f440e))
 - Rate-limited server-side analytics (60 req/min per IP) to bypass ad blockers while preventing abuse
 
-### Added
+### Demo Mode
 
-#### Demo Mode
+Public demonstration capability for [brennerbot.org](https://brennerbot.org) visitors who are not authenticated, with isolated `demo-` prefixed sessions and auto-generated sample data.
 
 - Add demo session fixtures for public website ([f5d2411](https://github.com/Dicklesworthstone/brenner_bot/commit/f5d2411a93916ff01c5a1e0188a4684557a8dd98))
-- Add DemoSessionsView component for public website ([ba53531](https://github.com/Dicklesworthstone/brenner_bot/commit/ba535319d47442ca509c6579a0178c475c10d549))
-- Integrate demo mode into sessions list page ([db30253](https://github.com/Dicklesworthstone/brenner_bot/commit/db302536aeeb754a5064f09a9661804fab64b3f6))
-- Add demo mode to session detail page ([5d8eca5](https://github.com/Dicklesworthstone/brenner_bot/commit/5d8eca5ff5bf62501c8fe1cd15661df94cc74485))
+- Add DemoSessionsView component ([ba53531](https://github.com/Dicklesworthstone/brenner_bot/commit/ba535319d47442ca509c6579a0178c475c10d549))
+- Integrate demo mode into sessions list and detail pages ([db30253](https://github.com/Dicklesworthstone/brenner_bot/commit/db302536aeeb754a5064f09a9661804fab64b3f6), [5d8eca5](https://github.com/Dicklesworthstone/brenner_bot/commit/5d8eca5ff5bf62501c8fe1cd15661df94cc74485))
 - Complete demo mode for all session pages ([c18040b](https://github.com/Dicklesworthstone/brenner_bot/commit/c18040b97d076d5cb68e8b40035b541a5817957a))
-- Detect public host to force demo mode on brennerbot.org ([6deb4d9](https://github.com/Dicklesworthstone/brenner_bot/commit/6deb4d9156e106d3d5f141f7ac3d11d4de86847e))
+- Auto-detect public host to force demo mode ([6deb4d9](https://github.com/Dicklesworthstone/brenner_bot/commit/6deb4d9156e106d3d5f141f7ac3d11d4de86847e))
 
-#### Session State Machine & Undo
+### Storage & Performance
+
+- Incremental index updates: O(1) updates vs O(n) full rebuilds for session saves ([97920fd](https://github.com/Dicklesworthstone/brenner_bot/commit/97920fd13191fa50a0e11cb24ef20894e31e5bbc))
+- Optimized ID lookups with normalized patterns supporting dots and simple H1/T1 formats ([fb49e36](https://github.com/Dicklesworthstone/brenner_bot/commit/fb49e361a07ce0c99c8bb6a7437a1653755afbdf))
+
+### Session State Machine & Undo
 
 - Add backward transitions and refactor agent mail client ([519f58a](https://github.com/Dicklesworthstone/brenner_bot/commit/519f58a813ff6ef8723c1536c392408dddec4e96))
 - Add apply_operator command type for operator undo/redo ([cb6f045](https://github.com/Dicklesworthstone/brenner_bot/commit/cb6f04578fd903c326b93a17446f4b796de5860b))
 - Support simple H{n} ID format alongside H-{session}-{seq} ([fe4b68d](https://github.com/Dicklesworthstone/brenner_bot/commit/fe4b68d2babe37076f7069ae2f2911b44ee5ccd6))
 
-### Performance
+### Parser Robustness
 
-- Incremental index updates: O(1) updates vs O(n) full rebuilds for session saves ([97920fd](https://github.com/Dicklesworthstone/brenner_bot/commit/97920fd13191fa50a0e11cb24ef20894e31e5bbc))
-- Cross-process file locking using advisory locks for storage consistency
-- Optimized ID lookups with normalized patterns (dots in session IDs, simple H1/T1 formats)
+- Lenient delta parsing that tolerates agent hallucinations and partial syntax ([e27dc0d](https://github.com/Dicklesworthstone/brenner_bot/commit/e27dc0d9eb2b7fc4e3b5dfd8d4e6cdbfed21031b))
+- Resolve React hydration mismatches across components ([9108704](https://github.com/Dicklesworthstone/brenner_bot/commit/910870427f17eb174eaf45120ebf505ef44c250b))
+- Correct arena, history, lifecycle, and dispatch logic in brenner-loop ([21a15b6](https://github.com/Dicklesworthstone/brenner_bot/commit/21a15b6df0c9e8e7d51cf362e871493edbcb7e24))
+- Resolve Zod SSR import failures in schema tests ([14196f7](https://github.com/Dicklesworthstone/brenner_bot/commit/14196f71540dc53a2a6209489c9a0af8b12e674d))
 
 ### Bug Fixes
 
-- Resolve React hydration mismatches and improve UX interactions ([9108704](https://github.com/Dicklesworthstone/brenner_bot/commit/910870427f17eb174eaf45120ebf505ef44c250b))
-- Correct arena, history, lifecycle, and dispatch logic in brenner-loop ([21a15b6](https://github.com/Dicklesworthstone/brenner_bot/commit/21a15b6df0c9e8e7d51cf362e871493edbcb7e24))
-- Improve parser robustness with lenient delta parsing that tolerates agent hallucinations ([e27dc0d](https://github.com/Dicklesworthstone/brenner_bot/commit/e27dc0d9eb2b7fc4e3b5dfd8d4e6cdbfed21031b))
-- Normalize ID patterns to support dots and simple formats in schemas ([fb49e36](https://github.com/Dicklesworthstone/brenner_bot/commit/fb49e361a07ce0c99c8bb6a7437a1653755afbdf))
-- Resolve Zod SSR import failures in schema tests ([14196f7](https://github.com/Dicklesworthstone/brenner_bot/commit/14196f71540dc53a2a6209489c9a0af8b12e674d))
 - Allow public host page routes for demo content in proxy ([9d04efe](https://github.com/Dicklesworthstone/brenner_bot/commit/9d04efe157e56129771521ee0fa8ca1b43326a1f))
 - Use type-safe pattern for operator applications in undo-manager ([c7c9d58](https://github.com/Dicklesworthstone/brenner_bot/commit/c7c9d582918034eb9ad03bfeeb0656fa3219f9d6))
 - Rewrite parseExcerpt for multi-line quote support ([3699f72](https://github.com/Dicklesworthstone/brenner_bot/commit/3699f720c082dbe0af973bb4511adad012b3c70c))
 - Handle direct Agent Mail MCP response formats in sessions API ([45b0c4b](https://github.com/Dicklesworthstone/brenner_bot/commit/45b0c4b54558e06e18eec773ce4a97a554189c7a))
-- Rename loop variable to avoid shadowing outer kickoff in threadStatus ([ee6ad62](https://github.com/Dicklesworthstone/brenner_bot/commit/ee6ad62418bfd98f8f097cfb18522bc4818ab6d7))
-- Ignore critiques before first COMPILED message in threadStatus ([7a1ed89](https://github.com/Dicklesworthstone/brenner_bot/commit/7a1ed89bc9e06c18c40bf0b7596c7e8ed249fe2e))
-- Relax section header regex for whitespace flexibility in transcriptParser ([14ee573](https://github.com/Dicklesworthstone/brenner_bot/commit/14ee573b5d43bfcfdd01de4906cc7c49b06c8679))
-- Quote User-Agent key in PowerShell hash literals for installer ([d13ff47](https://github.com/Dicklesworthstone/brenner_bot/commit/d13ff47c20fe955f1e5b880fa8f8e5cee139f93e))
-- Add evidenceEntries to PhaseContent component in SessionDashboard ([d8fc97f](https://github.com/Dicklesworthstone/brenner_bot/commit/d8fc97f716a19f662afdf3659d5fe0912e444c11))
+- Fix threadStatus loop variable shadowing and critique timing ([ee6ad62](https://github.com/Dicklesworthstone/brenner_bot/commit/ee6ad62418bfd98f8f097cfb18522bc4818ab6d7), [7a1ed89](https://github.com/Dicklesworthstone/brenner_bot/commit/7a1ed89bc9e06c18c40bf0b7596c7e8ed249fe2e))
+- Quote User-Agent key in PowerShell installer hash literals ([d13ff47](https://github.com/Dicklesworthstone/brenner_bot/commit/d13ff47c20fe955f1e5b880fa8f8e5cee139f93e))
 - Use native Bun build on Windows to avoid CDN download failures ([6f7bc80](https://github.com/Dicklesworthstone/brenner_bot/commit/6f7bc801d15f5a11e8d3ed4892df9db0520c6607))
 - Treat agent CLI checks as optional in doctor exit code logic ([99a9e91](https://github.com/Dicklesworthstone/brenner_bot/commit/99a9e9140f7ede63ee3acf539a5893c64db5830c))
-- Make Codecov non-blocking and increase 404 visual tolerance ([79f890a](https://github.com/Dicklesworthstone/brenner_bot/commit/79f890ac93f2268b0a888deb145e8d89f4d948d1))
-
-### Refactors
-
 - Consolidate reduced motion preference into shared hook ([959e644](https://github.com/Dicklesworthstone/brenner_bot/commit/959e64495785a6fca075b165d80a4afe46711ab0))
 
-### Tests
+### Testing
 
-- Add regression tests for parser and storage fixes ([2b16a26](https://github.com/Dicklesworthstone/brenner_bot/commit/2b16a262e22c0e3b489e14ee638b677ecb26744e))
+- Regression tests for parser and storage fixes ([2b16a26](https://github.com/Dicklesworthstone/brenner_bot/commit/2b16a262e22c0e3b489e14ee638b677ecb26744e))
 - Update operators test for new operator count and quote coverage ([0a38ef4](https://github.com/Dicklesworthstone/brenner_bot/commit/0a38ef4b57e9350baf280ca794efe33037255629))
-
-### Documentation
-
-- Add documentation for demo mode, security, storage optimizations ([934bd75](https://github.com/Dicklesworthstone/brenner_bot/commit/934bd753c178904f4fe76ea7dd3dabd673fa2538))
 
 ---
 
@@ -117,33 +111,19 @@ Compare: [v0.2.0...v0.3.0](https://github.com/Dicklesworthstone/brenner_bot/comp
 
 Compare: [v0.1.0...v0.2.0](https://github.com/Dicklesworthstone/brenner_bot/compare/v0.1.0...v0.2.0)
 
-### Added
+### Research Intelligence
 
-#### Animation & Scroll Effects System
-
-- Framer Motion animation system with scroll-reveal, parallax, and interactive animations ([0993a71](https://github.com/Dicklesworthstone/brenner_bot/commit/0993a71c8e121bac4ff40d893e456f520fd087ae))
-- Use useSyncExternalStore for reduced motion preference detection ([e4e3178](https://github.com/Dicklesworthstone/brenner_bot/commit/e4e3178826997a8fccc129e5a4d3006cb3132583))
-
-#### Landing Page Redesign
-
-- Complete Multi-Agent Orchestration and Operator Framework sections ([3f77c84](https://github.com/Dicklesworthstone/brenner_bot/commit/3f77c8475ef80842aae81d754c87998e0a736b50))
-- Add Technical Architecture section component ([ed061ba](https://github.com/Dicklesworthstone/brenner_bot/commit/ed061bab38c087a010b0b74fde2bfc0317d72d04))
-- Add Quality Assurance section standalone component ([c05e6a8](https://github.com/Dicklesworthstone/brenner_bot/commit/c05e6a8f62b6de0fe99bf615eea842d310f653ee))
-- Add Get Started & CTA section component ([9709eb5](https://github.com/Dicklesworthstone/brenner_bot/commit/9709eb519a24ce7537aa8ea3c16dd7bde5f89552))
-- Add multi-agent orchestration showcase section to homepage ([8754556](https://github.com/Dicklesworthstone/brenner_bot/commit/8754556b83f7bb1f266c8ca70cca616a5d0da1b0))
-
-#### Research Platform Core
+Features that advance the core scientific reasoning engine -- the "Brenner Loop" that drives hypothesis refinement through structured multi-agent deliberation.
 
 - Implement Agent Debate Mode for multi-agent hypothesis evaluation ([48e06d6](https://github.com/Dicklesworthstone/brenner_bot/commit/48e06d675db7efd6f65c5358921ec39a282ca23a))
-- Add failure mode analytics module to brenner-loop ([154fbdb](https://github.com/Dicklesworthstone/brenner_bot/commit/154fbdbd04dcc8a62fb901a1dc836159fce2491a))
-- Add failure mode analytics for hypothesis outcomes ([9f1f328](https://github.com/Dicklesworthstone/brenner_bot/commit/9f1f328cbd80b8029f260493a71bc1dbe20c87b0))
-- Add confidence calibration tracking ([562e77b](https://github.com/Dicklesworthstone/brenner_bot/commit/562e77bfc6273352a5ab05afa3338a1e188eb7cb))
-- Add citation manager for Brenner references ([d343b1e](https://github.com/Dicklesworthstone/brenner_bot/commit/d343b1e7b3cf1ffca5c31afd9a642b4facd8b988))
+- Add failure mode analytics module to detect and track hypothesis outcome patterns ([154fbdb](https://github.com/Dicklesworthstone/brenner_bot/commit/154fbdbd04dcc8a62fb901a1dc836159fce2491a), [9f1f328](https://github.com/Dicklesworthstone/brenner_bot/commit/9f1f328cbd80b8029f260493a71bc1dbe20c87b0))
+- Add confidence calibration tracking across research sessions ([562e77b](https://github.com/Dicklesworthstone/brenner_bot/commit/562e77bfc6273352a5ab05afa3338a1e188eb7cb))
 - Implement domain-aware confound detection ([bc9693f](https://github.com/Dicklesworthstone/brenner_bot/commit/bc9693fb2e1b2570e1eb96a564ed74d06e0713f0))
+- Add citation manager for Brenner references with proper attribution ([d343b1e](https://github.com/Dicklesworthstone/brenner_bot/commit/d343b1e7b3cf1ffca5c31afd9a642b4facd8b988))
 - Add sharpening and revision editors to brenner-loop ([9dfbb7b](https://github.com/Dicklesworthstone/brenner_bot/commit/9dfbb7b3c6311a7629f63e374700e7e50ec40bc9))
-- Wire SessionDashboard PhaseContent ([e5070d9](https://github.com/Dicklesworthstone/brenner_bot/commit/e5070d9294ff3031a5e9bf5cbdb10c6cb9afb74d))
+- Wire SessionDashboard PhaseContent for live session visualization ([e5070d9](https://github.com/Dicklesworthstone/brenner_bot/commit/e5070d9294ff3031a5e9bf5cbdb10c6cb9afb74d))
 
-#### Search & Discovery
+### Search & Discovery
 
 - Add hypothesis similarity search with vector-based semantic matching ([7944774](https://github.com/Dicklesworthstone/brenner_bot/commit/79447746021342c1ed9337c5c8184060dce77b0d))
 - Add storage integration for hypothesis similarity ([8111058](https://github.com/Dicklesworthstone/brenner_bot/commit/8111058201dffbf4e7f8754251fd976cf4a3cd62))
@@ -151,36 +131,51 @@ Compare: [v0.1.0...v0.2.0](https://github.com/Dicklesworthstone/brenner_bot/comp
 - Add quote-matcher module for semantic Brenner quote search ([838311f](https://github.com/Dicklesworthstone/brenner_bot/commit/838311f4a730b4ea09e06c5fdb8faa97c6306b17))
 - Integrate semantic quote matching sidebar into session pages ([33cca15](https://github.com/Dicklesworthstone/brenner_bot/commit/33cca15b062d9f1844130d677e8f6b134f1b9ab3))
 
-#### Evidence & Visualization
+### Evidence & Visualization
 
-- Implement What-If Scenario Explorer ([a1d51f1](https://github.com/Dicklesworthstone/brenner_bot/commit/a1d51f16fda3615bc92238ca116821e50aa1ecc1))
-- Add EvidenceTimeline and ConfidenceChart visualization components ([d9b7905](https://github.com/Dicklesworthstone/brenner_bot/commit/d9b790560a0beb661c0e30837bfd0fb8dbc8273a))
+- Implement What-If Scenario Explorer for counterfactual reasoning ([a1d51f1](https://github.com/Dicklesworthstone/brenner_bot/commit/a1d51f16fda3615bc92238ca116821e50aa1ecc1))
 - Add LiteratureSearch UI component with tests ([d9a5a16](https://github.com/Dicklesworthstone/brenner_bot/commit/d9a5a16d0e534714f6d434acf6c6334205904e1c))
 - Add literature integration module to evidence-ledger ([83c2458](https://github.com/Dicklesworthstone/brenner_bot/commit/83c2458ffff99340b83861a2f4f90307f966ce85))
 - Add personal analytics dashboard ([48b8a89](https://github.com/Dicklesworthstone/brenner_bot/commit/48b8a899f4ba3df595b24f7419a27b542cb8ad78))
-- Add hypothesis outcomes + objection/revision metrics ([df5262b](https://github.com/Dicklesworthstone/brenner_bot/commit/df5262b3e88af67555cd8b6a271b9cb78d2f6eb9))
+- Add hypothesis outcomes + objection/revision metrics tracking ([df5262b](https://github.com/Dicklesworthstone/brenner_bot/commit/df5262b3e88af67555cd8b6a271b9cb78d2f6eb9))
 
-#### Export & Templates
+### Tribunal System
+
+The multi-agent "tribunal" that provides adversarial review of hypotheses before they can be resolved.
+
+- Add objection register for tracking unresolved objections ([85a0907](https://github.com/Dicklesworthstone/brenner_bot/commit/85a0907c4390600b61f18273007c5b441a3aa051))
+- Block session completion when unresolved objections remain ([081b2cf](https://github.com/Dicklesworthstone/brenner_bot/commit/081b2cfdda908a779bb3eb039a7648f16aba14b3))
+- Include objection register status in research briefs ([106ab8b](https://github.com/Dicklesworthstone/brenner_bot/commit/106ab8b6cc09aa125c6547cd36764ae9ede1f7f1))
+- Load tribunal role prompts from spec files with caching and fallback ([94ecb47](https://github.com/Dicklesworthstone/brenner_bot/commit/94ecb47060aada76d845b402fa295685bebe51d4), [943589b](https://github.com/Dicklesworthstone/brenner_bot/commit/943589b1f6042e273342509c528960500c00c939))
+
+### Export & Templates
 
 - Implement multi-format Research Brief export (Markdown, DOCX-compatible) ([0a49ac2](https://github.com/Dicklesworthstone/brenner_bot/commit/0a49ac269f57381092d1e026071c8b2d914a7d22))
 - Add session template system for configurable workflows ([dea1ce3](https://github.com/Dicklesworthstone/brenner_bot/commit/dea1ce39150d0e1dcbe559ff8fc7f6109066dc93))
 - Add template library for domain-specific hypothesis examples ([013c0b8](https://github.com/Dicklesworthstone/brenner_bot/commit/013c0b8f6792b57b01cb3c18248f71fa77186506))
 - Add domain templates for field-specific research guidance ([8f9894f](https://github.com/Dicklesworthstone/brenner_bot/commit/8f9894f70b19f1ab0a5976402248028d730ef7dc))
 
-#### Tribunal System
+### Landing Page Redesign
 
-- Add objection register for tracking unresolved objections ([85a0907](https://github.com/Dicklesworthstone/brenner_bot/commit/85a0907c4390600b61f18273007c5b441a3aa051))
-- Block completion with unresolved objections ([081b2cf](https://github.com/Dicklesworthstone/brenner_bot/commit/081b2cfdda908a779bb3eb039a7648f16aba14b3))
-- Include objection register status in research briefs ([106ab8b](https://github.com/Dicklesworthstone/brenner_bot/commit/106ab8b6cc09aa125c6547cd36764ae9ede1f7f1))
-- Load tribunal role prompts from spec with caching ([94ecb47](https://github.com/Dicklesworthstone/brenner_bot/commit/94ecb47060aada76d845b402fa295685bebe51d4))
-- Load tribunal prompts from specs with fallback ([943589b](https://github.com/Dicklesworthstone/brenner_bot/commit/943589b1f6042e273342509c528960500c00c939))
+Complete homepage overhaul with showcase sections for all major capabilities.
 
-#### CLI
+- Multi-Agent Orchestration and Operator Framework showcase sections ([3f77c84](https://github.com/Dicklesworthstone/brenner_bot/commit/3f77c8475ef80842aae81d754c87998e0a736b50))
+- Technical Architecture section ([ed061ba](https://github.com/Dicklesworthstone/brenner_bot/commit/ed061bab38c087a010b0b74fde2bfc0317d72d04))
+- Quality Assurance section ([c05e6a8](https://github.com/Dicklesworthstone/brenner_bot/commit/c05e6a8f62b6de0fe99bf615eea842d310f653ee))
+- Get Started & CTA section ([9709eb5](https://github.com/Dicklesworthstone/brenner_bot/commit/9709eb519a24ce7537aa8ea3c16dd7bde5f89552))
+- Multi-agent orchestration showcase on homepage ([8754556](https://github.com/Dicklesworthstone/brenner_bot/commit/8754556b83f7bb1f266c8ca70cca616a5d0da1b0))
 
-- Add session diagnose command ([2a5f01e](https://github.com/Dicklesworthstone/brenner_bot/commit/2a5f01e9fab3cbf7b18eaba46da07a650c176bd8))
+### Animation System
+
+- Framer Motion animation system with scroll-reveal, parallax, and hover effects ([0993a71](https://github.com/Dicklesworthstone/brenner_bot/commit/0993a71c8e121bac4ff40d893e456f520fd087ae))
+- Reduced motion preference detection via useSyncExternalStore ([e4e3178](https://github.com/Dicklesworthstone/brenner_bot/commit/e4e3178826997a8fccc129e5a4d3006cb3132583))
+
+### CLI
+
+- Add `session diagnose` command for troubleshooting research sessions ([2a5f01e](https://github.com/Dicklesworthstone/brenner_bot/commit/2a5f01e9fab3cbf7b18eaba46da07a650c176bd8))
 - Add stdin/interactive testing capability to runCli ([581f04b](https://github.com/Dicklesworthstone/brenner_bot/commit/581f04b96d12184c432acb0c801180efb4263964))
 
-#### UX
+### UX
 
 - Mobile responsive session + tutorial UX gate ([aca7063](https://github.com/Dicklesworthstone/brenner_bot/commit/aca706344e42373008949abb1e89f0f6b55dd65d))
 - First-run onboarding for /sessions ([4008ea2](https://github.com/Dicklesworthstone/brenner_bot/commit/4008ea2655f1dc625074b58754b27c1c1b524960))
@@ -189,46 +184,29 @@ Compare: [v0.1.0...v0.2.0](https://github.com/Dicklesworthstone/brenner_bot/comp
 ### Bug Fixes
 
 - Correct delta calculation when confidence is clamped ([083cca1](https://github.com/Dicklesworthstone/brenner_bot/commit/083cca1bea11da42d4244ededae3f903a96aa69e))
-- Browser-safe UUID generation with crypto fallbacks ([ab3f998](https://github.com/Dicklesworthstone/brenner_bot/commit/ab3f998b346c6b443162c22f13c5d4f3112f8887))
-- Prevent concurrent index builds with shared promise ([0e7557d](https://github.com/Dicklesworthstone/brenner_bot/commit/0e7557d9fe198fd19e7b2b46201831da86471628))
+- Browser-safe UUID generation with crypto fallbacks ([ab3f998](https://github.com/Dicklesworthstone/brenner_bot/commit/ab3f998b346c6b443162c22f13c5d4f3112f8887), [2c6262c](https://github.com/Dicklesworthstone/brenner_bot/commit/2c6262cb382efffff27736f73153551ff0c36ea7))
+- Prevent concurrent index builds with shared promise in search ([0e7557d](https://github.com/Dicklesworthstone/brenner_bot/commit/0e7557d9fe198fd19e7b2b46201831da86471628))
 - Add JSON sanitization for common LLM errors in delta-parser ([2d4e68b](https://github.com/Dicklesworthstone/brenner_bot/commit/2d4e68b128e80f9cdbe2dca8f91ba1f28528b73e))
 - Add reference array deduplication and fix replace flag in artifact-merge ([f985ec7](https://github.com/Dicklesworthstone/brenner_bot/commit/f985ec785b6b9a386d56fab0a9e8a654f8f5f4b8))
-- Resolve TypeScript errors in animation components ([54306ee](https://github.com/Dicklesworthstone/brenner_bot/commit/54306ee18c4279af6f5d60c0f3d95ef78409c58a))
-- Remove useMemo destructuring to fix exhaustive-deps warning ([2266a9c](https://github.com/Dicklesworthstone/brenner_bot/commit/2266a9c04bd5d82533f44164d4c1c465b294e5a0))
 - Fail-fast on missing delta fences in compile ([c505d77](https://github.com/Dicklesworthstone/brenner_bot/commit/c505d77028d2c6565a330926003f566493844474))
 - Handle nested formatting and mixed list types in export ([eebd408](https://github.com/Dicklesworthstone/brenner_bot/commit/eebd408a66c1c5ea36fead1926cf960c837f0cd6))
-- Move horizontal rule conversion before paragraph wrapping in export ([fa44e65](https://github.com/Dicklesworthstone/brenner_bot/commit/fa44e65f4ced66004fa5696b2d4bd40a6e82fdc2))
 - Harden offline queue parsing ([4f42fd6](https://github.com/Dicklesworthstone/brenner_bot/commit/4f42fd67e9cf2e2b6087c9c27e15c035da5afa6b))
 - Harden objection extraction in tribunal ([c3f297d](https://github.com/Dicklesworthstone/brenner_bot/commit/c3f297d5524a66f992d631d9437a891aa3424d56))
-- Allow retry after transient load failure in search ([dfbe0a2](https://github.com/Dicklesworthstone/brenner_bot/commit/dfbe0a201cff703eb7142aa8d94c76ede753cf42))
-- Improve EvidenceTimeline controlled mode and UX ([358a61c](https://github.com/Dicklesworthstone/brenner_bot/commit/358a61c5e7e9a3b994a270cee85fb0492656dba0))
-- Improve crypto randomUUID handling for quote IDs ([cd58aeb](https://github.com/Dicklesworthstone/brenner_bot/commit/cd58aeb08c591146336f5f7d7c01e2e6d90e65b5))
-- Fix cardToIndexed date handling and barrel exports in search ([2b25893](https://github.com/Dicklesworthstone/brenner_bot/commit/2b258931f2ebafdb939a082d1184b7fd2882be71))
 - Resolve bugs in coach mode implementation ([69ca33a](https://github.com/Dicklesworthstone/brenner_bot/commit/69ca33a20c5c7e58d0e7a12db284528bb592b1a4))
 - Add runtime validation and defensive coding to brenner-loop ([47c62a8](https://github.com/Dicklesworthstone/brenner_bot/commit/47c62a8a231d3b9a8754b72efea5959a71c903fc))
-- Browser-safe UUID generation + session-machine actions ([2c6262c](https://github.com/Dicklesworthstone/brenner_bot/commit/2c6262cb382efffff27736f73153551ff0c36ea7))
-- Use static Tailwind classes for hover colors in what-if ([3d502b8](https://github.com/Dicklesworthstone/brenner_bot/commit/3d502b8975f30051be75ff2febdb80d8740bd15c))
-- Make Low Initial Confidence detector consistent in failure-analytics ([6445cae](https://github.com/Dicklesworthstone/brenner_bot/commit/6445caee2e1c6ee2103d9f8abc43c4ba90abd4d9))
-- Align operator symbols + dedupe phase labels ([2e87f6d](https://github.com/Dicklesworthstone/brenner_bot/commit/2e87f6d31f08998003ec9d40293a2128cb450545))
 
-### Refactors
+### Testing
 
-- Consolidate validation into lintArtifact, remove deprecated validateArtifact ([5d8395e](https://github.com/Dicklesworthstone/brenner_bot/commit/5d8395e85c812c25e1e44e1227f35710dbeb1439))
-
-### Tests
-
-- Add storage integration tests for hypothesis similarity ([4d7a3ec](https://github.com/Dicklesworthstone/brenner_bot/commit/4d7a3ec6d049538a7340e66dfad9a6cf041a1b6e))
-- Add SessionDashboard accessibility e2e tests ([fdf1583](https://github.com/Dicklesworthstone/brenner_bot/commit/fdf158300e45d298bfc7577c2b046e3fdddda63b))
-- Add coverage tests for research-brief-template ([e19966a](https://github.com/Dicklesworthstone/brenner_bot/commit/e19966a42a7e13b1f8c3a43f203445bbe3f64fb9))
-- Add comprehensive tests for brenner-loop modules (graveyard, hypothesis-history, operators, misc, agents) ([0de0e94](https://github.com/Dicklesworthstone/brenner_bot/commit/0de0e949852ad0a31896ab14a07a6fcb09baa562), [11c7203](https://github.com/Dicklesworthstone/brenner_bot/commit/11c72034bd5fbad677e1fb17d95535ebf346324a), [439ff8d](https://github.com/Dicklesworthstone/brenner_bot/commit/439ff8de2e6af669b25ed9f619cfdf9a16040387))
-- Add hypothesis lifecycle and session machine tests ([75796a7](https://github.com/Dicklesworthstone/brenner_bot/commit/75796a7929e757517b3b09c6c0de83b41fd51c51))
-- Add branch coverage tests for sessionHypothesis, session-kickoff, threadStatus ([675310f](https://github.com/Dicklesworthstone/brenner_bot/commit/675310f9ed9fa3c5330a5e2445d9323cf7bd2403))
-- Add edge case and validation tests for brenner-loop ([a402867](https://github.com/Dicklesworthstone/brenner_bot/commit/a402867a48ae91c6c670b7f00f7cdd8a4a1372ff))
+- Storage integration tests for hypothesis similarity ([4d7a3ec](https://github.com/Dicklesworthstone/brenner_bot/commit/4d7a3ec6d049538a7340e66dfad9a6cf041a1b6e))
+- SessionDashboard accessibility e2e tests ([fdf1583](https://github.com/Dicklesworthstone/brenner_bot/commit/fdf158300e45d298bfc7577c2b046e3fdddda63b))
+- Coverage tests for research-brief-template ([e19966a](https://github.com/Dicklesworthstone/brenner_bot/commit/e19966a42a7e13b1f8c3a43f203445bbe3f64fb9))
+- Comprehensive brenner-loop module coverage: hypothesis lifecycle, session machine, graveyard, operators, agents
+- Branch coverage for sessionHypothesis, session-kickoff, and threadStatus
 
 ### Documentation
 
-- Comprehensive documentation for 12 new features ([9e65800](https://github.com/Dicklesworthstone/brenner_bot/commit/9e65800d499d7cc7009b16ddc03a119d4dcdcec2))
-- Add delta formatting failure modes and remediation template ([c738d54](https://github.com/Dicklesworthstone/brenner_bot/commit/c738d54282df50b7d5a84fdb0b419fbb2fef1180))
+- Comprehensive README documentation for 12 new features ([9e65800](https://github.com/Dicklesworthstone/brenner_bot/commit/9e65800d499d7cc7009b16ddc03a119d4dcdcec2))
+- Add delta formatting failure modes and remediation template spec ([c738d54](https://github.com/Dicklesworthstone/brenner_bot/commit/c738d54282df50b7d5a84fdb0b419fbb2fef1180))
 
 ---
 
@@ -236,235 +214,257 @@ Compare: [v0.1.0...v0.2.0](https://github.com/Dicklesworthstone/brenner_bot/comp
 
 **Initial Release**
 
-1243 commits. Published release: [v0.1.0 on GitHub](https://github.com/Dicklesworthstone/brenner_bot/releases/tag/v0.1.0).
+~870 substantive commits (1243 total including beads syncs). Published release with cross-platform binaries: [v0.1.0 on GitHub](https://github.com/Dicklesworthstone/brenner_bot/releases/tag/v0.1.0).
 
 Browse: [all commits up to v0.1.0](https://github.com/Dicklesworthstone/brenner_bot/commits/v0.1.0)
 
-### Added
+### Corpus & Source Material (2025-12-29)
 
-#### Corpus (2025-12-29)
+The foundation of BrennerBot: 236 Sydney Brenner interview transcripts from Web of Stories, ingested as the primary-source corpus for the entire research platform.
 
-The foundation of BrennerBot: 236 Sydney Brenner interview transcripts from Web of Stories, ingested as the primary-source corpus.
+- Add complete transcript collection (transcripts 1--236) covering Brenner's life from Eastern European origins through C. elegans, the Fugu genome, and reflections on creativity ([3d289c9](https://github.com/Dicklesworthstone/brenner_bot/commit/3d289c97398815e65cb6d2926626255035f0caab)...[3db98aa](https://github.com/Dicklesworthstone/brenner_bot/commit/3db98aab9537318dd13e569f533be845d366a1de))
+- Fix truncated transcripts across multiple batches to restore full verbatim content ([9b1e228](https://github.com/Dicklesworthstone/brenner_bot/commit/9b1e228c077f6e48db113cb5f302e6ebf8f0e5b2), [2c3a35e](https://github.com/Dicklesworthstone/brenner_bot/commit/2c3a35e21a463476e17aede5eb00f7613a78b443), [143be90](https://github.com/Dicklesworthstone/brenner_bot/commit/143be9072dca6326c21077f93ae41d891fe9eca0))
+- Sync complete Brenner transcript to public corpus ([c3d10a5](https://github.com/Dicklesworthstone/brenner_bot/commit/c3d10a5c6b1db85b88153516baffb7b59ca4504a))
 
-- Add complete transcript collection (transcripts 1-236) covering Brenner's life from Eastern European origins through the C. elegans project and Fugu genome ([3d289c9](https://github.com/Dicklesworthstone/brenner_bot/commit/3d289c97398815e65cb6d2926626255035f0caab)...[3db98aa](https://github.com/Dicklesworthstone/brenner_bot/commit/3db98aa))
-- Fix truncated transcripts across multiple batches to restore full verbatim content ([9b1e228](https://github.com/Dicklesworthstone/brenner_bot/commit/9b1e228), [2c3a35e](https://github.com/Dicklesworthstone/brenner_bot/commit/2c3a35e), [143be90](https://github.com/Dicklesworthstone/brenner_bot/commit/143be90), [7c2bb28](https://github.com/Dicklesworthstone/brenner_bot/commit/7c2bb28))
-- Sync complete Brenner transcript to public corpus ([c3d10a5](https://github.com/Dicklesworthstone/brenner_bot/commit/c3d10a5))
+### Multi-Model Distillations
 
-#### Multi-Model Distillations
+Three independent AI model distillations of the Brenner method, each extracting complementary insights from the corpus.
 
-- Add GPT-5.2 unified Brenner-method distillation ([c665929](https://github.com/Dicklesworthstone/brenner_bot/commit/c665929))
-- Add Opus 4.5 "unified distillation" of the Brenner method ([25fe5fb](https://github.com/Dicklesworthstone/brenner_bot/commit/25fe5fb))
-- Add Gemini 3 "Brenner Kernel" distillation (mnemonic/metaphor) ([85c5103](https://github.com/Dicklesworthstone/brenner_bot/commit/85c5103))
-- Cross-pollinate key insights across model distillations ([e667447](https://github.com/Dicklesworthstone/brenner_bot/commit/e667447))
+- GPT-5.2 unified Brenner-method distillation ([c665929](https://github.com/Dicklesworthstone/brenner_bot/commit/c66592968aa21273ce36151cd56c8aa2b9beb103))
+- Opus 4.5 "unified distillation" of the Brenner method ([25fe5fb](https://github.com/Dicklesworthstone/brenner_bot/commit/25fe5fbdc7d29f7a3418a3161c993468607b67e6))
+- Gemini 3 "Brenner Kernel" distillation (mnemonic/metaphor focus) ([85c5103](https://github.com/Dicklesworthstone/brenner_bot/commit/85c51032e5b306573aec528643de31e67415191b))
+- Cross-pollinate key insights across model distillations ([e667447](https://github.com/Dicklesworthstone/brenner_bot/commit/e667447d34d41e476099aca0ae2a904daa632f7b))
 
-#### Protocol Specifications
+### Protocol Specifications
 
-- Add artifact schema v0.1 and security threat model ([e2cd336](https://github.com/Dicklesworthstone/brenner_bot/commit/e2cd336))
-- Add artifact delta and merge specification v0.1 ([c3016fd](https://github.com/Dicklesworthstone/brenner_bot/commit/c3016fd))
-- Add thread and subject conventions specification v0.1 ([fc4ac7a](https://github.com/Dicklesworthstone/brenner_bot/commit/fc4ac7a))
-- Add delta output format specification v0.1 ([14fe94d](https://github.com/Dicklesworthstone/brenner_bot/commit/14fe94d))
-- Add Agent Mail integration contracts v0.1 ([0e8a944](https://github.com/Dicklesworthstone/brenner_bot/commit/0e8a944))
-- Add artifact linter specification v0.1 ([7f86386](https://github.com/Dicklesworthstone/brenner_bot/commit/7f86386))
-- Add message body schema and ACK semantics v0.1 ([e3ced39](https://github.com/Dicklesworthstone/brenner_bot/commit/e3ced39))
-- Add role prompts for Codex, Opus, and Gemini agents v0.1 ([fdf414e](https://github.com/Dicklesworthstone/brenner_bot/commit/fdf414e))
+Formal specifications defining how multi-agent research sessions communicate, produce, and validate artifacts.
 
-#### Web Application (Next.js 16 + React 19)
+- Artifact schema v0.1 and security threat model ([e2cd336](https://github.com/Dicklesworthstone/brenner_bot/commit/e2cd336168a4787eb2be34c5a61eea299d567490))
+- Artifact delta and merge specification v0.1 ([c3016fd](https://github.com/Dicklesworthstone/brenner_bot/commit/c3016fdac308d30c27a847df1888dc78d2fc8f0c))
+- Thread and subject conventions specification v0.1 ([fc4ac7a](https://github.com/Dicklesworthstone/brenner_bot/commit/fc4ac7a64a992829c51267ac5f6eab5c957cc2dc))
+- Delta output format specification v0.1 ([14fe94d](https://github.com/Dicklesworthstone/brenner_bot/commit/14fe94da253d8453dbe8522a33260aa559017420))
+- Agent Mail integration contracts v0.1 ([0e8a944](https://github.com/Dicklesworthstone/brenner_bot/commit/0e8a9440950f5c8a0f7265da025e2cf83594a5af))
+- Artifact linter specification v0.1 ([7f86386](https://github.com/Dicklesworthstone/brenner_bot/commit/7f863864690bc1ab144fda5b2d5c43505740e5f4))
+- Message body schema and ACK semantics v0.1 ([e3ced39](https://github.com/Dicklesworthstone/brenner_bot/commit/e3ced39cbe6c2bced597656ab90c46017c107e45))
+- Role prompts for Codex, Opus, and Gemini agents v0.1 ([fdf414e](https://github.com/Dicklesworthstone/brenner_bot/commit/fdf414ed36a1173afc881a7936306f3aefe630ce))
+- Evaluation rubric for role outputs ([b2921ce](https://github.com/Dicklesworthstone/brenner_bot/commit/b2921ce93a6cdb1b9b25f0754ad51bec9c3a2657))
+- Toolchain manifest format and initial manifest ([1c6d122](https://github.com/Dicklesworthstone/brenner_bot/commit/1c6d122120a3202afa743ad6766fc2af128c9556))
 
-- Set up shadcn/ui with dark theme and base components ([20d20ff](https://github.com/Dicklesworthstone/brenner_bot/commit/20d20ff))
-- Add design system foundation: layout, typography, spacing, shadows ([d6d4d10](https://github.com/Dicklesworthstone/brenner_bot/commit/d6d4d10))
-- Complete UI/UX redesign for Method and Sessions pages ([d89e796](https://github.com/Dicklesworthstone/brenner_bot/commit/d89e796))
-- Beautiful markdown renderer + unrestricted corpus ([ee95794](https://github.com/Dicklesworthstone/brenner_bot/commit/ee95794))
-- Add specialized parsers and viewers for corpus rendering ([74b4741](https://github.com/Dicklesworthstone/brenner_bot/commit/74b4741))
-- Add corpus search API with caching and relevance scoring ([2d7d8d0](https://github.com/Dicklesworthstone/brenner_bot/commit/2d7d8d0))
-- Add transcript parser utility ([cebb357](https://github.com/Dicklesworthstone/brenner_bot/commit/cebb357))
-- Implement comprehensive global search system ([f517365](https://github.com/Dicklesworthstone/brenner_bot/commit/f517365))
-- World-class corpus page UI/UX overhaul ([0ae1407](https://github.com/Dicklesworthstone/brenner_bot/commit/0ae1407))
-- Add interactive Brenner loop diagram ([6edb106](https://github.com/Dicklesworthstone/brenner_bot/commit/6edb106))
-- Add distillation comparison view with sync scroll ([323e2d0](https://github.com/Dicklesworthstone/brenner_bot/commit/323e2d0))
-- Add interactive crosswalk comparison table ([4cb0d65](https://github.com/Dicklesworthstone/brenner_bot/commit/4cb0d65))
-- Add stunning OG images and bacteriophage favicon ([3cfc7e1](https://github.com/Dicklesworthstone/brenner_bot/commit/3cfc7e1))
-- Implement command palette with keyboard navigation ([ea97999](https://github.com/Dicklesworthstone/brenner_bot/commit/ea97999))
-- Implement toast notification system ([40f4590](https://github.com/Dicklesworthstone/brenner_bot/commit/40f4590))
-- Scroll reveal + copy micro-interactions ([59d9360](https://github.com/Dicklesworthstone/brenner_bot/commit/59d9360))
-- Add TanStack library foundation ([db9e33a](https://github.com/Dicklesworthstone/brenner_bot/commit/db9e33a))
-- Cloudflare Access header detection + security hardening ([d71eec2](https://github.com/Dicklesworthstone/brenner_bot/commit/d71eec2))
-- Stripe-level redesign of distillation hero sections ([71da1b1](https://github.com/Dicklesworthstone/brenner_bot/commit/71da1b1))
+### Web Application (Next.js 16 + React 19)
 
-#### Brenner Loop (Research Engine)
+The human-facing interface at [brennerbot.org](https://brennerbot.org) for corpus browsing, session viewing, and research exploration.
 
-- Implement prediction-lock / pre-registration system ([2b8f614](https://github.com/Dicklesworthstone/brenner_bot/commit/2b8f614))
-- Add session-hypothesis containment model ([8d5d739](https://github.com/Dicklesworthstone/brenner_bot/commit/8d5d739))
-- Add undo/redo system for session actions ([28bfe72](https://github.com/Dicklesworthstone/brenner_bot/commit/28bfe72))
-- Realtime SSE + assumption ladder intake ([ef67808](https://github.com/Dicklesworthstone/brenner_bot/commit/ef67808))
-- Add session schema migrations + backups ([450dd77](https://github.com/Dicklesworthstone/brenner_bot/commit/450dd77))
-- Heuristic tribunal synthesis ([d70c1e9](https://github.com/Dicklesworthstone/brenner_bot/commit/d70c1e9))
-- Implement robustness score calculation ([91692ec](https://github.com/Dicklesworthstone/brenner_bot/commit/91692ec))
-- Semantic operator quotes + test-queue hardening ([a2a579f](https://github.com/Dicklesworthstone/brenner_bot/commit/a2a579f))
-- Add delta parser for Brenner Protocol artifacts ([f113c3d](https://github.com/Dicklesworthstone/brenner_bot/commit/f113c3d))
-- Implement EvidenceEntry data model ([f07b5bb](https://github.com/Dicklesworthstone/brenner_bot/commit/f07b5bb))
-- Implement Confidence Update Algorithm ([b443e23](https://github.com/Dicklesworthstone/brenner_bot/commit/b443e23))
+#### Design System & Foundation
 
-#### Operator Framework
+- Set up shadcn/ui with dark theme and base components ([20d20ff](https://github.com/Dicklesworthstone/brenner_bot/commit/20d20ff4efc60f13c67c349066e66b8bf56a53ad))
+- Design system foundation: layout, typography, spacing, shadows ([d6d4d10](https://github.com/Dicklesworthstone/brenner_bot/commit/d6d4d10294e5e9b4f147133c35370784bb1b03df))
+- Complete UI/UX redesign for Method and Sessions pages ([d89e796](https://github.com/Dicklesworthstone/brenner_bot/commit/d89e796a51c901dd5d34fc73b9032c6f88e91f46))
+- Stripe-level redesign of distillation hero sections ([71da1b1](https://github.com/Dicklesworthstone/brenner_bot/commit/71da1b1e03bc67875b9a5b46dac39e270416bdd3))
+- Stunning OG images and bacteriophage favicon ([3cfc7e1](https://github.com/Dicklesworthstone/brenner_bot/commit/3cfc7e12690f3e3a22643fe3b1da06dda7059761))
+- Comprehensive mobile optimization ([2945c46](https://github.com/Dicklesworthstone/brenner_bot/commit/2945c460248c1da619ce4b190d34ea5bd0740f52))
 
-- Implement Operator Session Framework ([0d3fc71](https://github.com/Dicklesworthstone/brenner_bot/commit/0d3fc71))
-- Implement Operator Session UI Shell ([f4c9f6f](https://github.com/Dicklesworthstone/brenner_bot/commit/f4c9f6f))
-- Implement Level Split operator ([8021bbe](https://github.com/Dicklesworthstone/brenner_bot/commit/8021bbe))
-- Implement Exclusion Test operator ([2ffbe26](https://github.com/Dicklesworthstone/brenner_bot/commit/2ffbe26))
-- Implement Object Transpose operator ([6bbf324](https://github.com/Dicklesworthstone/brenner_bot/commit/6bbf324))
-- Implement Scale Check operator ([81c8fbd](https://github.com/Dicklesworthstone/brenner_bot/commit/81c8fbd))
-- Deep integration with operator cards, role prompts, and kickoff wiring ([e267e67](https://github.com/Dicklesworthstone/brenner_bot/commit/e267e67))
-- Add operator documentation and in-session help ([d079f16](https://github.com/Dicklesworthstone/brenner_bot/commit/d079f16))
+#### Corpus & Content
 
-#### Agent System
+- Beautiful markdown renderer + unrestricted corpus browsing ([ee95794](https://github.com/Dicklesworthstone/brenner_bot/commit/ee9579473b3a440dec40f5f3c1851e5315aa3116))
+- Specialized parsers and viewers for corpus rendering (transcript, distillation, quote bank, metaprompt) ([74b4741](https://github.com/Dicklesworthstone/brenner_bot/commit/74b4741e9869a11c9772b1bffdffb2d38a1aea02))
+- World-class corpus page UI/UX overhaul ([0ae1407](https://github.com/Dicklesworthstone/brenner_bot/commit/0ae1407cd7055d0938ce1d8ba1bcb5c53cdcf5f7))
+- Corpus search API with caching and relevance scoring ([2d7d8d0](https://github.com/Dicklesworthstone/brenner_bot/commit/2d7d8d08a3138c04a42e7b7674eea42fae04f1e4))
+- Jargon dictionary with 100+ seed terms and inline tooltips ([aa3ffa6](https://github.com/Dicklesworthstone/brenner_bot/commit/aa3ffa6af37d718713f6c1abba8fea1128475f35), [0840f6c](https://github.com/Dicklesworthstone/brenner_bot/commit/0840f6c77f45d05197f71b1bae58984d665ccbb2))
+- 261+ curated high-signal Brenner quotes in the quote bank ([6a80151](https://github.com/Dicklesworthstone/brenner_bot/commit/6a80151209d2530116c4dce069e33dad382d7a8a))
 
-- Implement Agent Dispatch via Agent Mail ([57a20bf](https://github.com/Dicklesworthstone/brenner_bot/commit/57a20bf))
-- Add AgentTribunalPanel UI ([d3e624b](https://github.com/Dicklesworthstone/brenner_bot/commit/d3e624b))
-- Add Statistician tribunal persona ([f2854da](https://github.com/Dicklesworthstone/brenner_bot/commit/f2854da))
-- Simulate agent progress + cancel ([6dd64e7](https://github.com/Dicklesworthstone/brenner_bot/commit/6dd64e7))
-- Strengthen Brenner Channeler prompt ([5ef9826](https://github.com/Dicklesworthstone/brenner_bot/commit/5ef9826))
-- Inject triangulated kernel into kickoffs ([5cab997](https://github.com/Dicklesworthstone/brenner_bot/commit/5cab997))
+#### Interactive Features
 
-#### Tutorial & Onboarding
+- Implement comprehensive global search system ([f517365](https://github.com/Dicklesworthstone/brenner_bot/commit/f51736521fe3c6c9a94fdec3487d80122628d4eb))
+- Interactive Brenner loop diagram ([6edb106](https://github.com/Dicklesworthstone/brenner_bot/commit/6edb106ff889ddad35b80e191b3accf99e8cdf3b))
+- Distillation comparison view with sync scroll ([323e2d0](https://github.com/Dicklesworthstone/brenner_bot/commit/323e2d0bf675f05ab7263cae20f763e9a474c2da))
+- Interactive crosswalk comparison table ([4cb0d65](https://github.com/Dicklesworthstone/brenner_bot/commit/4cb0d652082b98873a949d2067ec7d3f85d2a163))
+- Command palette with keyboard navigation ([ea97999](https://github.com/Dicklesworthstone/brenner_bot/commit/ea97999af43cbedde4af87297a814c2bb002aecd))
+- Toast notification system ([40f4590](https://github.com/Dicklesworthstone/brenner_bot/commit/40f4590034b2bf86cf37ec1a00004439254f28e3))
+- Scroll reveal + copy micro-interactions ([59d9360](https://github.com/Dicklesworthstone/brenner_bot/commit/59d9360b2fff80fd639de26b968887eaeccfd225))
+- TanStack library foundation (Table, Form, Virtual, Store) ([db9e33a](https://github.com/Dicklesworthstone/brenner_bot/commit/db9e33a9a4f85302fbaa279350ede5f4332608f3))
+- Cloudflare Access header detection + security hardening ([d71eec2](https://github.com/Dicklesworthstone/brenner_bot/commit/d71eec20549d4a2f0ebfc172e1fbeaa25be80190))
+- Reading position persistence with TanStack Store ([bc59946](https://github.com/Dicklesworthstone/brenner_bot/commit/bc5994695a5ea472947e36aa6a2b5a4eafe03bc9))
+- Bayesian crosswalk visualization on Method page ([a6ffdc1](https://github.com/Dicklesworthstone/brenner_bot/commit/a6ffdc180b27f2f9e0ab7e6a44b8fff7f0939c6b))
+- First-time user onboarding section ([c59e15b](https://github.com/Dicklesworthstone/brenner_bot/commit/c59e15bc750e183b87d1c3010d43ba98ef0e1e66))
 
-- Implement responsive tutorial layout with context provider ([69478cc](https://github.com/Dicklesworthstone/brenner_bot/commit/69478cc))
-- Add Multi-Agent Cockpit tutorial (10 steps) ([7887a35](https://github.com/Dicklesworthstone/brenner_bot/commit/7887a35))
-- Add centralized Quick Start tutorial data ([a2b9ecc](https://github.com/Dicklesworthstone/brenner_bot/commit/a2b9ecc))
-- Implement Agent-Assisted path steps and landing page ([94d6f7c](https://github.com/Dicklesworthstone/brenner_bot/commit/94d6f7c))
-- Add domain examples for tutorials ([f910d23](https://github.com/Dicklesworthstone/brenner_bot/commit/f910d23))
-- Implement Prompt Templates Library ([76af8e4](https://github.com/Dicklesworthstone/brenner_bot/commit/76af8e4))
-- Add tutorial CTA section to homepage ([f988290](https://github.com/Dicklesworthstone/brenner_bot/commit/f988290))
+### Brenner Loop (Research Engine)
 
-#### Session Management
+The core research workflow engine implementing Brenner's discriminative hypothesis methodology as a four-phase pipeline: Intake, Sharpening, Testing, Resolution.
 
-- Upgrade session sub-routes to world-class UI ([29b37c0](https://github.com/Dicklesworthstone/brenner_bot/commit/29b37c0))
-- Add session Test Queue ([72ed805](https://github.com/Dicklesworthstone/brenner_bot/commit/72ed805))
-- Refresh research brief UI ([6e6a5c8](https://github.com/Dicklesworthstone/brenner_bot/commit/6e6a5c8))
-- Local session hub at /sessions/[id] ([1523ef1](https://github.com/Dicklesworthstone/brenner_bot/commit/1523ef1))
-- Session search (local) ([bbc75e3](https://github.com/Dicklesworthstone/brenner_bot/commit/bbc75e3))
-- Local session archival + storage usage ([0226aab](https://github.com/Dicklesworthstone/brenner_bot/commit/0226aab))
-- Session resume intelligence ([1b68015](https://github.com/Dicklesworthstone/brenner_bot/commit/1b68015))
-- Add cmd+k command palette + shortcuts ([d6816a8](https://github.com/Dicklesworthstone/brenner_bot/commit/d6816a8))
-- Keyboard shortcuts + a11y ([ffdfc27](https://github.com/Dicklesworthstone/brenner_bot/commit/ffdfc27))
-- Add PhaseTimeline component ([da3839b](https://github.com/Dicklesworthstone/brenner_bot/commit/da3839b))
-- Add local session import panel + robust export checksum ([b19d809](https://github.com/Dicklesworthstone/brenner_bot/commit/b19d809))
+#### Hypothesis Management
 
-#### Offline & Resilience
+- Implement HypothesisCard interface & validation ([4af6efa](https://github.com/Dicklesworthstone/brenner_bot/commit/4af6efaa4291c44414ff713933f1296225ccca25))
+- Hypothesis version history & evolution graph ([2cec358](https://github.com/Dicklesworthstone/brenner_bot/commit/2cec3585027f963ca5c3256cd739d1cd1462f6e6))
+- HypothesisIntake wizard component ([806e253](https://github.com/Dicklesworthstone/brenner_bot/commit/806e253d1001c4826ac645fe66382dbe37f2ff9a))
+- Hypothesis Arena for competing hypotheses ([19aad80](https://github.com/Dicklesworthstone/brenner_bot/commit/19aad80f2184922e415779428b619192f8f516d5))
+- Hypothesis Lifecycle State Machine ([a424147](https://github.com/Dicklesworthstone/brenner_bot/commit/a42414795da877f5a873abee3758e89a3ea7bd7a), [e16a355](https://github.com/Dicklesworthstone/brenner_bot/commit/e16a355cd74fbf5348b93495b0b11198bd6fc5e3))
+- Session-hypothesis containment model ([8d5d739](https://github.com/Dicklesworthstone/brenner_bot/commit/8d5d7396af5fca6bea5d3aadac655a167f487a15))
+- Prediction-lock / pre-registration system ([2b8f614](https://github.com/Dicklesworthstone/brenner_bot/commit/2b8f614be0240b0cb51a332c37518f6e470fbf84))
+- Hypothesis storage layer with full CRUD ([508935b](https://github.com/Dicklesworthstone/brenner_bot/commit/508935b14a7899a4430beaf65209a6b5e1b05bd1))
 
-- Add offline mode queue, indicators, and service worker ([3dac785](https://github.com/Dicklesworthstone/brenner_bot/commit/3dac785))
-- Implement unified dark mode preference handling ([661a74c](https://github.com/Dicklesworthstone/brenner_bot/commit/661a74c))
+#### Session Infrastructure
 
-#### Search & Embeddings
+- Session State Machine ([176a6d3](https://github.com/Dicklesworthstone/brenner_bot/commit/176a6d393d16ee4e9ca8169314f1b152542902ed))
+- Session Dashboard Layout ([598b8e7](https://github.com/Dicklesworthstone/brenner_bot/commit/598b8e78762e6e7b4e1dc596cb3a0da9299db51c))
+- Session Context Provider & Hooks ([0f27908](https://github.com/Dicklesworthstone/brenner_bot/commit/0f27908fe8427e8fab4c8f415f78e55a6479725e))
+- Undo/redo system for session actions ([28bfe72](https://github.com/Dicklesworthstone/brenner_bot/commit/28bfe72ee931687dc63b745d441ce8bb326ada5e))
+- Realtime SSE + assumption ladder intake ([ef67808](https://github.com/Dicklesworthstone/brenner_bot/commit/ef67808e364e8f565c6e3199af7f5c318e44f0aa))
+- Session schema migrations + backups ([450dd77](https://github.com/Dicklesworthstone/brenner_bot/commit/450dd77ef9f66733a6b4e5ed47c18f9aad0fa19c))
+- Local session hub at /sessions/[id] ([1523ef1](https://github.com/Dicklesworthstone/brenner_bot/commit/1523ef17d9d9a32e3b839c269ff28ea985cd4c75))
+- Session search (local) ([bbc75e3](https://github.com/Dicklesworthstone/brenner_bot/commit/bbc75e30d0189a5a076527e9b20409aa98b64512))
+- Local session archival + storage usage tracking ([0226aab](https://github.com/Dicklesworthstone/brenner_bot/commit/0226aab9ef69b2b563061bb2c4bd6a23f5e9247d))
+- Session resume intelligence ([1b68015](https://github.com/Dicklesworthstone/brenner_bot/commit/1b68015ac9e0abb7f9853a201e57ce5c8b9ac9d1))
+- Serialize HypothesisStorage writes to prevent corruption ([86d5f56](https://github.com/Dicklesworthstone/brenner_bot/commit/86d5f56a0bce8cc83d06a6b5669689e2a4b16ced))
+- Storage adapter concurrency fix ([dd568d2](https://github.com/Dicklesworthstone/brenner_bot/commit/dd568d22c1a483242c7fe1bd3627de6a1b989e25))
+- Storage corruption recovery ([be241ae](https://github.com/Dicklesworthstone/brenner_bot/commit/be241aead94adb176150de35293bbf3db1813392))
 
-- Add corpus search with cache stats ([6aab9ba](https://github.com/Dicklesworthstone/brenner_bot/commit/6aab9ba))
-- Add vector embeddings infrastructure for semantic search ([416f46c](https://github.com/Dicklesworthstone/brenner_bot/commit/416f46c))
-- Add local corpus embedding index ([ec0e752](https://github.com/Dicklesworthstone/brenner_bot/commit/ec0e752))
-- Add in-session corpus search + quote attachments ([d1d6094](https://github.com/Dicklesworthstone/brenner_bot/commit/d1d6094))
-- Link assumptions to Test Queue ([74c1215](https://github.com/Dicklesworthstone/brenner_bot/commit/74c1215))
+#### Evidence & Testing Pipeline
 
-#### Evidence UI
+- EvidenceEntry data model ([f07b5bb](https://github.com/Dicklesworthstone/brenner_bot/commit/f07b5bb2f0b6fe8370dd12da8c202c8213af354f))
+- Confidence Update Algorithm ([b443e23](https://github.com/Dicklesworthstone/brenner_bot/commit/b443e2379cbc32130bb1a1c1f952502a3105e1bb))
+- Evidence Recording UI component ([7f1c64f](https://github.com/Dicklesworthstone/brenner_bot/commit/7f1c64fdf2c126f998d0a0d5be0af1eb7a903f04))
+- Session Test Queue ([72ed805](https://github.com/Dicklesworthstone/brenner_bot/commit/72ed8051dc1a41885dbbdcbc49080ab9f76be1d3))
+- Heuristic tribunal synthesis ([d70c1e9](https://github.com/Dicklesworthstone/brenner_bot/commit/d70c1e93f521de7caff88e502ec5d1c485f9aba5))
+- Robustness score calculation ([91692ec](https://github.com/Dicklesworthstone/brenner_bot/commit/91692eccd28a7902a5193daa35fb81003b10475b))
+- Delta parser for Brenner Protocol artifacts ([f113c3d](https://github.com/Dicklesworthstone/brenner_bot/commit/f113c3da71fd0fe73ea881e5bfeffbdc9e196365))
 
-- Build Evidence Recording UI component ([7f1c64f](https://github.com/Dicklesworthstone/brenner_bot/commit/7f1c64f))
+### Operator Framework
 
-#### CLI
+Cognitive operators derived from Brenner's methodology -- structured thinking tools that agents apply to refine hypotheses.
 
-- Add Agent Mail inbox/read/ack/thread commands ([d10a646](https://github.com/Dicklesworthstone/brenner_bot/commit/d10a646))
-- Scaffold Agent Mail kickoff tooling ([8531415](https://github.com/Dicklesworthstone/brenner_bot/commit/8531415))
-- Lint to operator guidance and session nudge ([d560adf](https://github.com/Dicklesworthstone/brenner_bot/commit/d560adf))
+- Operator Session Framework ([0d3fc71](https://github.com/Dicklesworthstone/brenner_bot/commit/0d3fc7169a17075260267625358a0a47593e78bc))
+- Operator Session UI Shell ([f4c9f6f](https://github.com/Dicklesworthstone/brenner_bot/commit/f4c9f6f4a4f8aee7744e5b749543c239744ba002))
+- Level Split (Sigma) operator ([8021bbe](https://github.com/Dicklesworthstone/brenner_bot/commit/8021bbe11beb91a2a90b79a650e82742035a2082))
+- Exclusion Test operator ([2ffbe26](https://github.com/Dicklesworthstone/brenner_bot/commit/2ffbe26332e9bbac942903d8058e4cf67fa7dc4b))
+- Object Transpose operator ([6bbf324](https://github.com/Dicklesworthstone/brenner_bot/commit/6bbf3244c48b11526ef665be9fcce7f4b6f41b39))
+- Scale Check operator ([81c8fbd](https://github.com/Dicklesworthstone/brenner_bot/commit/81c8fbd34d5795e9f47ea1e79e9b49892a183961))
+- Deep integration with operator cards, role prompts, and kickoff wiring ([e267e67](https://github.com/Dicklesworthstone/brenner_bot/commit/e267e67c33f02cc295d93254817ce3b5b601dce8))
+- Operator documentation and in-session help ([d079f16](https://github.com/Dicklesworthstone/brenner_bot/commit/d079f16dfd41ca58949aa5713c814a9e6935815b))
+- Semantic operator quotes ([a2a579f](https://github.com/Dicklesworthstone/brenner_bot/commit/a2a579ffe65943bf42a123dc509db9df5aea8c40))
 
-#### UI Components
+### Agent System
 
-- Add Brenner Loop entry points from main site ([d625685](https://github.com/Dicklesworthstone/brenner_bot/commit/d625685))
-- Enhance Label component with variants, indicators, and FormField wrapper ([4e1ba3a](https://github.com/Dicklesworthstone/brenner_bot/commit/4e1ba3a))
-- Enhance Dialog component with size variants, accessibility, and polish ([06b7047](https://github.com/Dicklesworthstone/brenner_bot/commit/06b7047))
-- Add world-class UI components and polish ([8f13a39](https://github.com/Dicklesworthstone/brenner_bot/commit/8f13a39))
+Multi-agent orchestration via Agent Mail, coordinating Claude (Opus 4.5), Codex (GPT-5.2), and Gemini 3 as a virtual research tribunal.
 
-#### Storage
+- Agent Dispatch via Agent Mail ([57a20bf](https://github.com/Dicklesworthstone/brenner_bot/commit/57a20bf6ac7c3374e795438db762068b4d044025))
+- AgentTribunalPanel UI ([d3e624b](https://github.com/Dicklesworthstone/brenner_bot/commit/d3e624bd5c07ea93850d250b29ee8d41138cee0f))
+- Statistician tribunal persona ([f2854da](https://github.com/Dicklesworthstone/brenner_bot/commit/f2854da83c3e36b7e08dcb0f75f2c0ecef709048))
+- Agent progress simulation + cancel ([6dd64e7](https://github.com/Dicklesworthstone/brenner_bot/commit/6dd64e7eca41a17514b3593eb68bff1cbd748d47))
+- Brenner Channeler prompt strengthening ([5ef9826](https://github.com/Dicklesworthstone/brenner_bot/commit/5ef98263dbc348ae2533569c108883163f64fc16))
+- Triangulated kernel injection into kickoffs ([5cab997](https://github.com/Dicklesworthstone/brenner_bot/commit/5cab9979b5e1d7699242d72ff63be4bf0773105d))
+- SSE endpoint for realtime agent responses ([8e71ce4](https://github.com/Dicklesworthstone/brenner_bot/commit/8e71ce41560723a378a078356ee16f5c604f0b97))
+- Agent Mail test server harness ([a99604e](https://github.com/Dicklesworthstone/brenner_bot/commit/a99604eccaac63bcb19c5dee72439ab34fe86172))
 
-- Serialize HypothesisStorage writes ([86d5f56](https://github.com/Dicklesworthstone/brenner_bot/commit/86d5f56))
-- Storage corruption recovery ([be241ae](https://github.com/Dicklesworthstone/brenner_bot/commit/be241ae))
-- Fix storage adapter concurrency ([dd568d2](https://github.com/Dicklesworthstone/brenner_bot/commit/dd568d2))
-- Harden readingStore persistence ([9c452e4](https://github.com/Dicklesworthstone/brenner_bot/commit/9c452e4))
+### Research Artifact Schemas
 
-#### Infrastructure
+Zod-validated schemas for the data structures that power research sessions.
 
-- Add system health analytics instrumentation ([dd09dc6](https://github.com/Dicklesworthstone/brenner_bot/commit/dd09dc6))
-- Expand AgentMailClient tool helpers ([f424887](https://github.com/Dicklesworthstone/brenner_bot/commit/f424887))
-- Track INP/CLS + LCP element in e2e ([5526d8d](https://github.com/Dicklesworthstone/brenner_bot/commit/5526d8d))
-- Implement role-specific kickoff sending ([2cb271d](https://github.com/Dicklesworthstone/brenner_bot/commit/2cb271d))
+- Hypothesis Registry Schema ([697bd81](https://github.com/Dicklesworthstone/brenner_bot/commit/697bd81ea9983f4b6c6ae2d464819091e56f19fb))
+- Prediction and TestRecord schemas ([c2d5ef7](https://github.com/Dicklesworthstone/brenner_bot/commit/c2d5ef7550e55e0fec472b9f5c41b5a0056aa6c3))
+- Assumption schema and lifecycle state machine ([fc886d3](https://github.com/Dicklesworthstone/brenner_bot/commit/fc886d3695af72da990d0b1530a98fc9428aaf12), [8a8953e](https://github.com/Dicklesworthstone/brenner_bot/commit/8a8953eff985370a73ba3c80cd04de06f8e52ede))
+- Anomaly Registry schema and storage layer ([49175dc](https://github.com/Dicklesworthstone/brenner_bot/commit/49175dcccd6893227fc141545b98f27f657e1227))
+- Test Storage Layer with full CRUD ([bfe5a54](https://github.com/Dicklesworthstone/brenner_bot/commit/bfe5a5499668c49c076958aea8568b9e37c9c845))
+- Assumption Storage Layer with full CRUD ([8f0c646](https://github.com/Dicklesworthstone/brenner_bot/commit/8f0c646e7352c3d13e8f02ae23f6214da05144e1))
+- Brenner Method Scorecard with 14-criterion evaluation ([71e553c](https://github.com/Dicklesworthstone/brenner_bot/commit/71e553cf8be97051c5039ea598e2d1b930a04fe0))
 
-### Bug Fixes
+### Experiment Capture & Encoding
 
-- Resolve keyboard shortcut conflict and add missing features ([07b3f06](https://github.com/Dicklesworthstone/brenner_bot/commit/07b3f06))
-- Fix stale closure bug in useLocalStorage cleanup ([0d9e007](https://github.com/Dicklesworthstone/brenner_bot/commit/0d9e007))
-- Correct checkmark animation stroke-dasharray value ([7f30372](https://github.com/Dicklesworthstone/brenner_bot/commit/7f30372))
-- Prevent division by zero in sync scroll ([3758bf0](https://github.com/Dicklesworthstone/brenner_bot/commit/3758bf0))
-- Improve quotebank-parser blockquote extraction ([704e09c](https://github.com/Dicklesworthstone/brenner_bot/commit/704e09c))
-- Resolve corpus files from public/corpus for Vercel deployment ([c113fb1](https://github.com/Dicklesworthstone/brenner_bot/commit/c113fb1))
-- Fix transcript section ordering: move section 186 to correct position ([064354c](https://github.com/Dicklesworthstone/brenner_bot/commit/064354c))
-- Allow null target_id for research_thread EDIT in delta-parser ([ede53d9](https://github.com/Dicklesworthstone/brenner_bot/commit/ede53d9))
-- Correct malformed string literal in renderArtifactMarkdown ([5697020](https://github.com/Dicklesworthstone/brenner_bot/commit/5697020))
-- Security and cleanup fixes from code review ([20e34f6](https://github.com/Dicklesworthstone/brenner_bot/commit/20e34f6))
-- Escape apostrophes in OG/Twitter image generators ([352a072](https://github.com/Dicklesworthstone/brenner_bot/commit/352a072))
-- Return 404 for unauthorized orchestration in API ([39279b3](https://github.com/Dicklesworthstone/brenner_bot/commit/39279b3))
-- Always return a Response when offline in service worker ([95efe53](https://github.com/Dicklesworthstone/brenner_bot/commit/95efe53))
-- Preserve hypothesis cards when archiving in session-context ([25da334](https://github.com/Dicklesworthstone/brenner_bot/commit/25da334))
-- Prevent empty string in alternativeHypothesisIds for undo ([13ebb8e](https://github.com/Dicklesworthstone/brenner_bot/commit/13ebb8e))
-- Allow LOCK_PREDICTION from active state in hypothesis-lifecycle ([c500d14](https://github.com/Dicklesworthstone/brenner_bot/commit/c500d14))
-- Fix null-safety and division-by-zero bugs in ScaleCheckSession ([787dbdf](https://github.com/Dicklesworthstone/brenner_bot/commit/787dbdf))
-- Break circular import and improve documentation in dispatch ([d9e5697](https://github.com/Dicklesworthstone/brenner_bot/commit/d9e5697))
-- Fix protocol regeneration and comma parsing in Exclusion Test ([4e1ba3a](https://github.com/Dicklesworthstone/brenner_bot/commit/4e21678))
-- Preserve dots in storage filenames ([2d29e17](https://github.com/Dicklesworthstone/brenner_bot/commit/2d29e17))
-- Fix tribunal response matching ([387610e](https://github.com/Dicklesworthstone/brenner_bot/commit/387610e))
-- Fix tribunal labels and projectKey test normalization ([bf91927](https://github.com/Dicklesworthstone/brenner_bot/commit/bf91927))
-- Guard thread status participant handling ([e2ebb5e](https://github.com/Dicklesworthstone/brenner_bot/commit/e2ebb5e))
-- Harden thread status guards and quiet search tests ([1803bf8](https://github.com/Dicklesworthstone/brenner_bot/commit/1803bf8))
-- Fix realtime cursor handling for initial history ([9d19793](https://github.com/Dicklesworthstone/brenner_bot/commit/9d19793))
-- Fix case-insensitive pending ACK detection ([e4eabc4](https://github.com/Dicklesworthstone/brenner_bot/commit/e4eabc4))
-- Improve mobile responsiveness in DistillationViewer and TranscriptViewer ([aa45889](https://github.com/Dicklesworthstone/brenner_bot/commit/aa45889))
-- Comprehensive mobile optimization for home and corpus pages ([2945c46](https://github.com/Dicklesworthstone/brenner_bot/commit/2945c46))
-- Remove conflicting cmd+K handler from corpus page ([21a65aa](https://github.com/Dicklesworthstone/brenner_bot/commit/21a65aa))
-- Correct phase sorting and Escape key handling in session-list ([d390abd](https://github.com/Dicklesworthstone/brenner_bot/commit/d390abd))
-- Render help markdown + allow nav after completion in operators ([837a7bb](https://github.com/Dicklesworthstone/brenner_bot/commit/837a7bb))
-- Trim whitespace before regex replace in buildQuoteEntries ([65d4095](https://github.com/Dicklesworthstone/brenner_bot/commit/65d4095))
-- Align operator phase symbols in session-ui ([188bf1f](https://github.com/Dicklesworthstone/brenner_bot/commit/188bf1ff1953e7b3fbfd4398d583e4cabc07cc2c))
+- Experiment capture protocol: run/record ([d1a627c](https://github.com/Dicklesworthstone/brenner_bot/commit/d1a627c4573f99891f4c0a63d99463d739c30d1a))
+- Experiment encode and post CLI commands ([3944ebc](https://github.com/Dicklesworthstone/brenner_bot/commit/3944ebc6de0441690a234357f1e9a5b9dc0254f6), [a98c934](https://github.com/Dicklesworthstone/brenner_bot/commit/a98c934bbdfdc518bcc76470372c84af339f000c))
+- Evidence pack v0.1 spec and viewer ([94bb790](https://github.com/Dicklesworthstone/brenner_bot/commit/94bb7901cd0310f19f59a6f0d359ddc0ac4aacc4), [cefb209](https://github.com/Dicklesworthstone/brenner_bot/commit/cefb20967595e35e4c1355427e21c3eebfc05955))
+- Experiments run endpoint for web lab ([3097533](https://github.com/Dicklesworthstone/brenner_bot/commit/3097533c5fc392287a7bded663312b32dd7c15d8))
+- Semantic diff between artifact versions ([7459a16](https://github.com/Dicklesworthstone/brenner_bot/commit/7459a16253681289868de5662d8dadabfd21896e))
+- Operator intervention audit trail ([6277f39](https://github.com/Dicklesworthstone/brenner_bot/commit/6277f398d689bc18181b9047901da40842f5b8d3))
+- Session Replay spec implementation ([f9f4295](https://github.com/Dicklesworthstone/brenner_bot/commit/f9f4295c8a830ac469431ee9e458749e1d5bd863))
 
-### Tests
+### Scoring & Evaluation
 
-- Add brenner CLI tests ([3d0d0c7](https://github.com/Dicklesworthstone/brenner_bot/commit/3d0d0c7))
-- Add unit tests for agentMail and corpusSearch ([6af4d03](https://github.com/Dicklesworthstone/brenner_bot/commit/6af4d03))
-- Add unit tests for distillation, quotebank, and metaprompt parsers ([5dd7c53](https://github.com/Dicklesworthstone/brenner_bot/commit/5dd7c53))
-- Add unit tests for auth and transcript-parser libs ([074c880](https://github.com/Dicklesworthstone/brenner_bot/commit/074c880))
-- Add unit tests for lib/utils.ts (21 tests) ([7635f53](https://github.com/Dicklesworthstone/brenner_bot/commit/7635f53))
-- Add artifact merge algorithm tests (21 tests) ([22d1d66](https://github.com/Dicklesworthstone/brenner_bot/commit/22d1d66))
-- Configure Vitest for unit testing + add delta-parser tests ([052c232](https://github.com/Dicklesworthstone/brenner_bot/commit/052c232))
-- Add Playwright E2E tests for metaprompt viewer ([5d623b4](https://github.com/Dicklesworthstone/brenner_bot/commit/5d623b4))
-- Add comprehensive UI component tests ([2810d6e](https://github.com/Dicklesworthstone/brenner_bot/commit/2810d6e))
-- Add button component test and test setup ([b0b6fc9](https://github.com/Dicklesworthstone/brenner_bot/commit/b0b6fc9))
-- Add Quick Start tutorial path E2E tests ([6f05492](https://github.com/Dicklesworthstone/brenner_bot/commit/6f05492))
-- Add multi-agent orchestration E2E tests ([f46d93b](https://github.com/Dicklesworthstone/brenner_bot/commit/f46d93b))
-- Add mobile nav coverage and stabilize tutorial menu close ([3799857](https://github.com/Dicklesworthstone/brenner_bot/commit/3799857), [43c32c0](https://github.com/Dicklesworthstone/brenner_bot/commit/43c32c0))
-- Add operators page coverage ([4605c4f](https://github.com/Dicklesworthstone/brenner_bot/commit/4605c4f))
-- Add unit tests for context providers ([63fce85](https://github.com/Dicklesworthstone/brenner_bot/commit/63fce85))
-- Add visualization component tests ([b1c64b0](https://github.com/Dicklesworthstone/brenner_bot/commit/b1c64b0))
-- Add SSE endpoint tests and improve projectKey handling ([8e71ce4](https://github.com/Dicklesworthstone/brenner_bot/commit/8e71ce4))
-- Add realtime SSE E2E test ([4034c19](https://github.com/Dicklesworthstone/brenner_bot/commit/4034c19))
-- Improve CLI test output capture ([190484a](https://github.com/Dicklesworthstone/brenner_bot/commit/190484a))
-- Harden CLI test timeout + stabilize realtime SSE E2E ([71be1f5](https://github.com/Dicklesworthstone/brenner_bot/commit/71be1f5))
+- 7-dimension session scoring with 32 tests ([220a2f9](https://github.com/Dicklesworthstone/brenner_bot/commit/220a2f901d79040c97b59d10ef10618607d1f6aa))
+- Dashboard aggregation with health warnings ([3a8834f](https://github.com/Dicklesworthstone/brenner_bot/commit/3a8834fb49ebedce13852a9659a61b97248c6738))
+- Score, feedback, and leaderboard CLI commands ([771b17c](https://github.com/Dicklesworthstone/brenner_bot/commit/771b17c930e45954d97c37e80638d9039f192b0a))
+
+### Tutorial & Onboarding
+
+Multi-path tutorial system guiding users through Quick Start, Agent-Assisted, and Multi-Agent Cockpit workflows.
+
+- Tutorial infrastructure component library ([771271b](https://github.com/Dicklesworthstone/brenner_bot/commit/771271b094bb9b335be8700a4db5bb6c41d1e20b))
+- Tutorial landing page with path selector ([de48a36](https://github.com/Dicklesworthstone/brenner_bot/commit/de48a366a06e066324ef15056c9d0d1a963af21b))
+- Agent-Assisted path steps 1--8 ([94d6f7c](https://github.com/Dicklesworthstone/brenner_bot/commit/94d6f7cc46211069d7664899a6e792897a94c796))
+- Multi-Agent Cockpit tutorial (10 steps) ([7887a35](https://github.com/Dicklesworthstone/brenner_bot/commit/7887a35fb14881356b228bcf69044d4fb179d5d2))
+- Domain-specific tutorial examples ([f910d23](https://github.com/Dicklesworthstone/brenner_bot/commit/f910d2339d27b654837c9c04433006449016f8d6))
+- Prompt Templates Library ([76af8e4](https://github.com/Dicklesworthstone/brenner_bot/commit/76af8e4ec592ca53f4de7ae3db7efcece08653f6))
+- Quick Start steps completion flow ([ccff24a](https://github.com/Dicklesworthstone/brenner_bot/commit/ccff24a48905d61a14a8d034d6c7afeb9c3bbf0b))
+
+### CLI (`@brennerbot/cli`)
+
+Standalone Bun CLI for terminal-first research workflows, distributed as cross-platform binaries.
+
+- Agent Mail inbox/read/ack/thread commands ([d10a646](https://github.com/Dicklesworthstone/brenner_bot/commit/d10a646b8f76a805fdc995bdce59d00dcae0bc83))
+- Hypothesis CLI: list, show, create, search, link, stats ([d3b0de3](https://github.com/Dicklesworthstone/brenner_bot/commit/d3b0de3d6f2ed3bc91b01ae65a22656b9c3d3060))
+- Hypothesis state transition commands ([a201ccc](https://github.com/Dicklesworthstone/brenner_bot/commit/a201ccc3137c84da2d8ccd38b7c224bdbc523670))
+- Assumption registry commands ([5d4e17e](https://github.com/Dicklesworthstone/brenner_bot/commit/5d4e17e0c84cbd2f02a3274f44b4579369c96369))
+- Anomaly CLI commands ([468abd5](https://github.com/Dicklesworthstone/brenner_bot/commit/468abd542a09b373dff233917d6317951bb295c1))
+- Critique registry commands ([eb470f3](https://github.com/Dicklesworthstone/brenner_bot/commit/eb470f3fe31d259add8f9be340ddf8e255ffade9))
+- Test commands ([fc4136e](https://github.com/Dicklesworthstone/brenner_bot/commit/fc4136ecab2b09d080013ab693c831becb04a6f0))
+- Evidence post helper ([8e32ea3](https://github.com/Dicklesworthstone/brenner_bot/commit/8e32ea3277625cc1c7203b7d1ff8490f0b4b3d51))
+- Session status --watch ([6b0cd26](https://github.com/Dicklesworthstone/brenner_bot/commit/6b0cd260724f73aede8bfc73245af623f7bef3b7))
+- Lint-to-operator guidance and session nudge ([d560adf](https://github.com/Dicklesworthstone/brenner_bot/commit/d560adfbc76c6a3c073e5f7ae0151123a431df90))
+- Toolchain manifest parser and `plan` command ([366d3d8](https://github.com/Dicklesworthstone/brenner_bot/commit/366d3d81ecece312bbc62a9815e8aa4b298e75bc))
+- Doctor: agent CLI presence checks ([40b22f1](https://github.com/Dicklesworthstone/brenner_bot/commit/40b22f1755935792b01da442e23a1022ca052e3c))
+- Cockpit start command ([1dfae36](https://github.com/Dicklesworthstone/brenner_bot/commit/1dfae369f3b65134aae2ad6bd01ec74dff47b445))
+
+### Embeddings & Semantic Search
+
+- Vector embeddings infrastructure for semantic search ([416f46c](https://github.com/Dicklesworthstone/brenner_bot/commit/416f46cfdd488f08ae3c9289ff741afb22d9aa93))
+- Local corpus embedding index ([ec0e752](https://github.com/Dicklesworthstone/brenner_bot/commit/ec0e752ab154285c86d5ac639227290f6b00c308))
+
+### Offline Resilience
+
+- Offline mode queue, indicators, and service worker ([3dac785](https://github.com/Dicklesworthstone/brenner_bot/commit/3dac785374366f34691a0c06bf2ecc90e6e91427))
+- Service worker always returns a Response when offline ([95efe53](https://github.com/Dicklesworthstone/brenner_bot/commit/95efe53ef9d4ef97bbbba5a07de2851426f90aa1))
+
+### Analytics & Observability
+
+- GA4 analytics infrastructure ([47b75c9](https://github.com/Dicklesworthstone/brenner_bot/commit/47b75c9d796902ce53a01ad241399da2a56203f4))
+- User acquisition tracking ([117dc77](https://github.com/Dicklesworthstone/brenner_bot/commit/117dc776afba8cca801be8a266ec79dd71dd3f15))
+- System health analytics instrumentation ([dd09dc6](https://github.com/Dicklesworthstone/brenner_bot/commit/dd09dc6c9c2824fa7665e8c8ceedae5f47b5afaa))
+- INP/CLS + LCP element tracking in E2E tests ([5526d8d](https://github.com/Dicklesworthstone/brenner_bot/commit/5526d8df2d49f025d28532aab95c8532d6fdf7e6))
+
+### Security
+
+- Harden readingStore persistence ([9c452e4](https://github.com/Dicklesworthstone/brenner_bot/commit/9c452e4682a71ff0409095aba26e8de4fddbc405))
+- Prevent directory traversal via thread ID in evidence endpoints ([551ab37](https://github.com/Dicklesworthstone/brenner_bot/commit/551ab37a6ce24561dc3bf8e92ed580733b354530))
+- Lab auth tightening + intervention audit coverage ([cc62cf8](https://github.com/Dicklesworthstone/brenner_bot/commit/cc62cf8fede00b7d33bd029a826598be969eccf6))
+
+### Testing Infrastructure
+
+Comprehensive test suite spanning unit, integration, E2E, visual regression, accessibility, and performance testing.
+
+- Vitest for unit testing + delta-parser tests ([052c232](https://github.com/Dicklesworthstone/brenner_bot/commit/052c23253cbfb5f6a252da8683a54c8182f77900))
+- Playwright E2E tests for sessions, search, authentication, and multi-agent orchestration ([28864e0](https://github.com/Dicklesworthstone/brenner_bot/commit/28864e02edfa68e32876aee7e313bce8cca0b1be), [073efa5](https://github.com/Dicklesworthstone/brenner_bot/commit/073efa54f1fd5a746f5c8c7654e7faeeb4b1f822), [8096178](https://github.com/Dicklesworthstone/brenner_bot/commit/8096178a7a3e6d00225b5b085948562db8f4a31a), [f46d93b](https://github.com/Dicklesworthstone/brenner_bot/commit/f46d93b00fc918c9a97ac68f68234ef44f28a9a4))
+- Visual regression testing with Playwright snapshots ([c6244a6](https://github.com/Dicklesworthstone/brenner_bot/commit/c6244a6d367ccc8287b1ca289c2e4bec715e86dd))
+- Accessibility testing with axe-core ([091ce8b](https://github.com/Dicklesworthstone/brenner_bot/commit/091ce8bce1b5fff3ff9d0e160042df0ae2388f66))
+- Coverage threshold enforcement ([71f3de2](https://github.com/Dicklesworthstone/brenner_bot/commit/71f3de2fbd053c1da6bd42e0914385ce9ddfb1e4))
+- Agent Mail integration tests with test server seeding ([0e02609](https://github.com/Dicklesworthstone/brenner_bot/commit/0e0260998df9d0433af56d3ac45d7869e085d9c1))
+- GitHub Actions CI workflow ([8f0d850](https://github.com/Dicklesworthstone/brenner_bot/commit/8f0d850586ba90cd2f53770df5bed46b66907637))
+- Unit tests across all major modules: artifact merge (21), utils (21), CommandPalette (35), SessionForm (38), navigation (58), collapsible (48), SpotlightSearch (34), operators, viewers, and more
 
 ### Documentation
 
-- Comprehensive expansion with Brenner Method framework in README ([6d73cab](https://github.com/Dicklesworthstone/brenner_bot/commit/6d73cab))
-- Document tribunal personas, prediction lock, arena, and hypothesis lifecycle ([01a8075](https://github.com/Dicklesworthstone/brenner_bot/commit/01a8075))
-- Comprehensive documentation for Brenner Loop architecture ([a10a95b](https://github.com/Dicklesworthstone/brenner_bot/commit/a10a95b))
-- Add corpus data model spec ([86859b9](https://github.com/Dicklesworthstone/brenner_bot/commit/86859b9))
-- Add content policy research for Web of Stories transcripts ([392d2aa](https://github.com/Dicklesworthstone/brenner_bot/commit/392d2aa))
-- Testing best practices guide ([19a6dbc](https://github.com/Dicklesworthstone/brenner_bot/commit/19a6dbc))
-- Clarify dual EvidenceEntry types and ID regex patterns ([128546f](https://github.com/Dicklesworthstone/brenner_bot/commit/128546f))
+- Comprehensive README with Brenner Method framework, operator algebra, and system architecture ([6d73cab](https://github.com/Dicklesworthstone/brenner_bot/commit/6d73cab565e9a62457b4d219b4625ee9e0967ad8))
+- Quick Install section with curl one-liner ([90e087c](https://github.com/Dicklesworthstone/brenner_bot/commit/90e087c3801e806e593727210b8f0b59a74dd1ad))
+- End-to-end analysis of BrennerBot with bio-inspired nanochat research question ([9098a87](https://github.com/Dicklesworthstone/brenner_bot/commit/9098a876e356d59407282fd22f2a5ab52d8cc36d))
+- Cockpit runbook with full session workflow ([7b7d3c8](https://github.com/Dicklesworthstone/brenner_bot/commit/7b7d3c84a2ad10da9960eea52a54d4d107e2dbef))
+- Deployment runbook for Vercel + Cloudflare ([880e57e](https://github.com/Dicklesworthstone/brenner_bot/commit/880e57e2419e92eed6e87c5f868e0027c2f14fc6))
+- Testing best practices guide ([19a6dbc](https://github.com/Dicklesworthstone/brenner_bot/commit/19a6dbc4fd7f4f1bf6c848d14c3e8cd65b20c577))
+
+### Cross-Platform Distribution
+
+Release binaries for darwin-arm64, darwin-x64, linux-arm64, linux-x64, and win-x64, each with SHA256 checksums. Includes `install.sh` and `install.ps1` installer scripts.
 
 ---
 
-<!-- Link definitions -->
 [Unreleased]: https://github.com/Dicklesworthstone/brenner_bot/compare/v0.3.0...HEAD
 [v0.3.0]: https://github.com/Dicklesworthstone/brenner_bot/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/Dicklesworthstone/brenner_bot/compare/v0.1.0...v0.2.0
-[v0.1.0]: https://github.com/Dicklesworthstone/brenner_bot/commits/v0.1.0
+[v0.1.0]: https://github.com/Dicklesworthstone/brenner_bot/releases/tag/v0.1.0
