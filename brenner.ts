@@ -14,6 +14,7 @@ import { randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { createInterface } from "node:readline";
+import { spawn } from "node:child_process";
 
 // Shared modules from web lib (bundled by Bun)
 import { AgentMailClient } from "./apps/web/src/lib/agentMail";
@@ -26,11 +27,14 @@ import { parseOperatorCards, resolveOperatorCard, type OperatorCard } from "./ap
 import {
   AGENT_ROLES,
   composeKickoffMessages,
+  getAgentRole,
+  getRolePromptMarkdown,
   getTriangulatedBrennerKernelMarkdown,
   type AgentRole,
   type KickoffConfig,
+  type RoleConfig,
 } from "./apps/web/src/lib/session-kickoff";
-import { parseDeltaMessage, type ValidDelta } from "./apps/web/src/lib/delta-parser";
+import { extractValidDeltas, parseDeltaMessage, type ValidDelta } from "./apps/web/src/lib/delta-parser";
 import {
   createEmptyArtifact,
   formatLintReportHuman,
@@ -1474,6 +1478,16 @@ Commands:
   session nudge [--project-key <abs-path>] --thread-id <id> [--sender <AgentName>] --to <A,B>
                [--operator <s>] [--ack-required] [--dry-run] [--json]
   session diagnose [--project-key <abs-path>] --thread-id <id> [--json]
+  session robot --session-dir <path> --question <s>
+               [--context-file <path>] [--excerpt-file <path>] [--max-rounds <n>]
+               [--claude-bin <path>] [--codex-bin <path>] [--gemini-bin <path>]
+               [--sequential] [--json]
+
+    Robot mode: fully automated multi-agent sessions without Agent Mail. Three
+    agents run as CLI subprocesses (Claude Code, Codex CLI, Gemini CLI). Each
+    round: prompts are built from the current artifact state, agents are invoked,
+    deltas are parsed and merged, the artifact is linted. Session converges when
+    kill-rate exceeds add-rate or --max-rounds is reached.
 
     By default, sends role-specific prompts to each recipient using name heuristics:
       - Codex/GPT → Hypothesis Generator
@@ -7580,6 +7594,598 @@ ${JSON.stringify(delta, null, 2)}
       stdoutLine(`───────────────────────────────────────────────────────────`);
       stdoutLine(`\nShowing top ${topResults.length} of ${results.length} sessions`);
     }
+    process.exit(0);
+  }
+
+  // ============================================================================
+  // Session Robot Command — fully automated multi-agent, no Agent Mail
+  // ============================================================================
+  if (normalizedTop === "session" && sub === "robot") {
+    const sessionDirRaw = asStringFlag(flags, "session-dir");
+    if (!sessionDirRaw) throw new Error("Missing --session-dir.");
+    const sessionDir = resolve(sessionDirRaw);
+
+    const question = asStringFlag(flags, "question");
+    if (!question) throw new Error("Missing --question.");
+
+    const contextFile = asStringFlag(flags, "context-file") ?? join(sessionDir, "context.md");
+    const excerptFile = asStringFlag(flags, "excerpt-file") ?? join(sessionDir, "excerpt.md");
+    const maxRounds = asIntFlag(flags, "max-rounds") ?? 5;
+    const sequential = asBoolFlag(flags, "sequential");
+    const jsonMode = asBoolFlag(flags, "json");
+
+    // Extract session ID from directory name
+    const sessionId = sessionDir.split("/").pop() ?? `RS-robot-${Date.now()}`;
+
+    // Create session directory if it doesn't exist
+    if (!existsSync(sessionDir)) {
+      mkdirSync(sessionDir, { recursive: true });
+      stderrLine(`Created session directory: ${sessionDir}`);
+    }
+
+    // Validate required files
+    if (!existsSync(contextFile)) {
+      throw new Error(
+        `Missing context file: ${contextFile}\n\n` +
+        `context.md grounds agents in your specific research question.\n\n` +
+        `Create it:\n` +
+        `  cat > ${contextFile} << 'EOF'\n` +
+        `  ## Research Question\n` +
+        `  <what are you trying to decide or understand?>\n\n` +
+        `  ## Background\n` +
+        `  <essential context the agents need>\n\n` +
+        `  ## Evaluation Criteria\n` +
+        `  <what does a good answer look like?>\n` +
+        `  EOF`
+      );
+    }
+
+    if (!existsSync(excerptFile)) {
+      throw new Error(
+        `Missing excerpt file: ${excerptFile}\n\n` +
+        `excerpt.md grounds agents in Brenner's reasoning style.\n\n` +
+        `Build one:\n` +
+        `  brenner corpus search "your topic" --limit 5\n` +
+        `  brenner excerpt build --sections 58,78 > ${excerptFile}\n\n` +
+        `Or create an empty file to skip:\n` +
+        `  touch ${excerptFile}`
+      );
+    }
+
+    const contextText = readFileSync(contextFile, "utf8");
+    const excerptText = readFileSync(excerptFile, "utf8");
+
+    // Resolve agent binary paths: flags > env > PATH defaults
+    function resolveAgentBin(flagKey: string, envKey: string, fallback: string): string {
+      return asStringFlag(flags, flagKey) ?? process.env[envKey] ?? fallback;
+    }
+    const claudeBin = resolveAgentBin("claude-bin", "BRENNER_CLAUDE_BIN", "claude");
+    const codexBin  = resolveAgentBin("codex-bin",  "BRENNER_CODEX_BIN",  "codex");
+    const geminiBin = resolveAgentBin("gemini-bin", "BRENNER_GEMINI_BIN", "gemini");
+
+    // Augment PATH for agent binaries in common locations
+    const localBin = join(homedir(), ".local", "bin");
+    const robotPath = [localBin, "/usr/local/bin", process.env.PATH ?? ""].filter(Boolean).join(":");
+
+    // Agent roster: three agents with incompatible mandates
+    interface RobotAgent {
+      name: string;
+      slug: string;
+      role: RoleConfig;
+      bin: string;
+      buildArgs: (prompt: string, outFile: string) => string[];
+      buildEnv: () => Record<string, string | undefined>;
+      readOutput: (stdout: string, outFile: string) => string;
+    }
+
+    const agents: RobotAgent[] = [
+      {
+        name: "BlueLake",
+        slug: "bluelake",
+        role: AGENT_ROLES["Claude"] ?? AGENT_ROLES["Opus"],
+        bin: claudeBin,
+        buildArgs: (prompt: string) => [
+          "--dangerously-skip-permissions", "--output-format", "text", "-p", prompt,
+        ],
+        buildEnv: () => ({
+          ...process.env,
+          PATH: robotPath,
+          // Suppress nested Claude Code session detection
+          CLAUDECODE: "",
+          CLAUDE_CODE_ENTRYPOINT: "",
+          AGENT_NAME: "BlueLake",
+        }),
+        readOutput: (stdout: string) => stdout,
+      },
+      {
+        name: "RedForest",
+        slug: "redforest",
+        role: AGENT_ROLES["Codex"] ?? AGENT_ROLES["codex-cli"],
+        bin: codexBin,
+        buildArgs: (prompt: string, outFile: string) => [
+          "exec", "--full-auto", "--output-last-message", outFile, prompt,
+        ],
+        buildEnv: () => ({
+          ...process.env,
+          PATH: robotPath,
+          AGENT_NAME: "RedForest",
+        }),
+        readOutput: (_stdout: string, outFile: string) =>
+          existsSync(outFile) ? readFileSync(outFile, "utf8") : "",
+      },
+      {
+        name: "GreenMountain",
+        slug: "greenmountain",
+        role: AGENT_ROLES["Gemini"] ?? AGENT_ROLES["gemini-cli"],
+        bin: geminiBin,
+        buildArgs: (prompt: string) => [
+          "--sandbox", "--output-format", "text", "-p", prompt,
+        ],
+        buildEnv: () => ({
+          ...process.env,
+          PATH: robotPath,
+          AGENT_NAME: "GreenMountain",
+        }),
+        readOutput: (stdout: string) => stdout,
+      },
+    ];
+
+    // -------------------------------------------------------------------
+    // Build initial Round 1 prompt for an agent
+    // -------------------------------------------------------------------
+    function buildRound1Prompt(agent: RobotAgent): string {
+      const kernel = getTriangulatedBrennerKernelMarkdown();
+      const roleSection = getRolePromptMarkdown(agent.role.role);
+
+      const parts: string[] = [];
+      parts.push(`You are ${agent.name} (${agent.role.displayName}) in a Brenner Protocol session.\n`);
+
+      if (kernel) {
+        parts.push(`## Triangulated Brenner Kernel\n\n${kernel}\n`);
+      }
+
+      if (roleSection) {
+        parts.push(`## Role Prompt (System)\n\n${roleSection}\n`);
+      } else {
+        parts.push(`## Your Role\n${agent.role.description}\n`);
+      }
+
+      parts.push(`## Research Question\n\n${question}\n`);
+
+      if (contextText.trim()) {
+        parts.push(`## Context\n\n${contextText}\n`);
+      }
+
+      if (excerptText.trim()) {
+        parts.push(`## Brenner Excerpt\n\n${excerptText}\n`);
+      }
+
+      parts.push(buildDeltaFormatInstructions());
+
+      return parts.join("\n");
+    }
+
+    // -------------------------------------------------------------------
+    // Build Round 2+ prompt for an agent given current artifact
+    // -------------------------------------------------------------------
+    function buildRoundNPrompt(agent: RobotAgent, artifact: Artifact, round: number): string {
+      const kernel = getTriangulatedBrennerKernelMarkdown();
+      const roleSection = getRolePromptMarkdown(agent.role.role);
+      const artifactMd = renderArtifactMarkdown(artifact);
+
+      const parts: string[] = [];
+      parts.push(`You are ${agent.name} (${agent.role.displayName}) in a Brenner Protocol session.\n`);
+
+      // Re-inject kernel + role every round since each subprocess is a fresh context window
+      if (kernel) {
+        parts.push(`## Triangulated Brenner Kernel\n\n${kernel}\n`);
+      }
+      if (roleSection) {
+        parts.push(`## Role Prompt (System)\n\n${roleSection}\n`);
+      } else {
+        parts.push(`## Your Role\n${agent.role.description}\n`);
+      }
+
+      // Round-specific instructions
+      if (round === 2) {
+        parts.push(`## Round ${round} Instructions\n`);
+        parts.push(`Review other agents' findings from the previous round (in the artifact below).`);
+        parts.push(`Make your first kill attempts — identify weak hypotheses and KILL them with explicit reasons.`);
+        parts.push(`You may ADD refinements, but kills are the priority.\n`);
+      } else {
+        parts.push(`## Round ${round} Instructions (Convergence)\n`);
+        parts.push(`KILLS MUST EXCEED ADDS. Provide final verdicts on all surviving hypotheses.`);
+        parts.push(`Kill any hypothesis that cannot withstand scrutiny. Fewer strong beats more weak.\n`);
+      }
+
+      parts.push(`## Current Artifact (v${artifact.metadata.version})\n\n${artifactMd}\n`);
+
+      parts.push(buildDeltaFormatInstructions());
+
+      return parts.join("\n");
+    }
+
+    // -------------------------------------------------------------------
+    // Delta format instructions (shared across rounds)
+    // -------------------------------------------------------------------
+    function buildDeltaFormatInstructions(): string {
+      return `## Output Format
+
+Respond ONLY with delta blocks. Each delta is a JSON object in a \`\`\`delta fence.
+One JSON object per fence. No arrays. No prose outside delta blocks.
+
+Valid operations: ADD (target_id: null), EDIT (target_id required), KILL (target_id required).
+Valid sections: hypothesis_slate, discriminative_tests, assumption_ledger, anomaly_register,
+  adversarial_critique, research_thread, predictions_table.
+
+The compiler assigns IDs (H1, H2, T1, A1, C1, etc.). Do not invent your own IDs.
+For KILL, use the "reason" field (not "kill_reason").
+
+**Your full argument MUST go in the payload content fields** — rationale is metadata only
+and will NOT be visible to other agents. Write reasoning in mechanism (hypotheses),
+attack/evidence (critiques), procedure/discriminates (tests), reason (kills).
+
+**Predictions table mandate:** For every hypothesis you ADD, you MUST also ADD a
+predictions_table row specifying what observable outcome it predicts differently
+from alternatives.
+
+Example ADD (hypothesis):
+\`\`\`delta
+{
+  "operation": "ADD",
+  "section": "hypothesis_slate",
+  "target_id": null,
+  "payload": {
+    "name": "Short descriptive name",
+    "claim": "One falsifiable sentence.",
+    "mechanism": "Full causal argument with evidence and failure modes.",
+    "anchors": ["[inference]"],
+    "third_alternative": false
+  },
+  "rationale": "[inference]"
+}
+\`\`\`
+
+Example KILL:
+\`\`\`delta
+{
+  "operation": "KILL",
+  "section": "hypothesis_slate",
+  "target_id": "H1",
+  "payload": { "reason": "Full kill argument: which evidence rules this out and why no rescue is possible." },
+  "rationale": "[inference]"
+}
+\`\`\`
+`;
+    }
+
+    // -------------------------------------------------------------------
+    // Invoke a single agent as a subprocess, returns its text output
+    // -------------------------------------------------------------------
+    const AGENT_TIMEOUT_MS = 300_000; // 5 minutes per agent
+
+    function invokeAgent(agent: RobotAgent, prompt: string, roundDir: string): Promise<string> {
+      const promptFile = join(roundDir, `${agent.slug}_prompt.md`);
+      const outFile = join(roundDir, `${agent.slug}_out.md`);
+      writeFileSync(promptFile, prompt);
+
+      stderrLine(`  -> Invoking ${agent.name} (${agent.role.displayName})...`);
+
+      return new Promise<string>((resolve, reject) => {
+        const args = agent.buildArgs(prompt, outFile);
+        const env = agent.buildEnv();
+
+        const child = spawn(agent.bin, args, {
+          env,
+          stdio: ["ignore", "pipe", "pipe"],
+          cwd: sessionDir,
+        });
+
+        const stdoutChunks: Buffer[] = [];
+        const stderrChunks: Buffer[] = [];
+        child.stdout?.on("data", (d: Buffer) => stdoutChunks.push(d));
+        child.stderr?.on("data", (d: Buffer) => stderrChunks.push(d));
+
+        child.on("error", (err: Error) => {
+          stderrLine(`  [!] ${agent.name} failed to launch: ${err.message}`);
+          stderrLine(`      Binary: ${agent.bin}`);
+          stderrLine(`      Ensure the CLI is installed and in PATH.`);
+          // Resolve with empty string instead of rejecting — a single agent
+          // failure should not abort the entire session
+          writeFileSync(outFile, "");
+          resolve("");
+        });
+
+        const timer = setTimeout(() => {
+          child.kill("SIGTERM");
+          stderrLine(`  [!] ${agent.name} timed out after ${AGENT_TIMEOUT_MS / 1000}s, sending SIGTERM`);
+        }, AGENT_TIMEOUT_MS);
+
+        child.on("close", (code: number | null) => {
+          clearTimeout(timer);
+
+          const stdout = Buffer.concat(stdoutChunks).toString();
+          const output = agent.readOutput(stdout, outFile);
+
+          if (code !== 0 && code !== null) {
+            stderrLine(`  [!] ${agent.name} exited with code ${code}`);
+          }
+
+          writeFileSync(outFile, output);
+
+          // Show a brief preview so the operator can follow along
+          const deltaCount = (output.match(/```delta/g) ?? []).length;
+          const preview = output
+            .replace(/```delta[\s\S]*?```/g, "[delta]")
+            .trim()
+            .slice(0, 400);
+          stderrLine(`  [ok] ${agent.name} done (${deltaCount} delta blocks)`);
+          if (preview) {
+            for (const line of preview.split("\n").slice(0, 5)) {
+              stderrLine(`       ${line}`);
+            }
+          }
+          stderrLine("");
+
+          resolve(output);
+        });
+      });
+    }
+
+    // -------------------------------------------------------------------
+    // Parse deltas from agent output and attach metadata
+    // -------------------------------------------------------------------
+    function parseAgentDeltas(
+      agentName: string,
+      output: string,
+      timestamp: string,
+    ): Array<ValidDelta & { timestamp: string; agent: string }> {
+      const deltas = extractValidDeltas(output);
+      return deltas.map((d) => ({ ...d, timestamp, agent: agentName }));
+    }
+
+    // -------------------------------------------------------------------
+    // Check convergence: kills >= adds in this round, or hit max rounds
+    // -------------------------------------------------------------------
+    function checkConvergence(
+      roundDeltas: Array<ValidDelta & { timestamp: string; agent: string }>,
+      round: number,
+      artifact: Artifact,
+    ): { converged: boolean; reason: string } {
+      if (round >= maxRounds) {
+        return { converged: true, reason: `Reached maximum rounds (${maxRounds})` };
+      }
+
+      const adds = roundDeltas.filter((d) => d.operation === "ADD").length;
+      const kills = roundDeltas.filter((d) => d.operation === "KILL").length;
+
+      // Round 1 never converges (agents are still generating initial hypotheses)
+      if (round === 1) {
+        return { converged: false, reason: `Round 1: ${adds} adds, ${kills} kills` };
+      }
+
+      // Count active hypotheses
+      const activeHypotheses = (artifact.sections.hypothesis_slate as any[])
+        .filter((h: any) => !h.killed).length;
+
+      // Convergence: kills >= adds (adversarial pressure exceeds generation)
+      if (kills >= adds) {
+        return {
+          converged: true,
+          reason: `Kill-rate (${kills}) >= add-rate (${adds}), ${activeHypotheses} active hypotheses remain`,
+        };
+      }
+
+      // Also converge if no deltas at all (agents have nothing to say)
+      if (roundDeltas.length === 0) {
+        return { converged: true, reason: "No deltas produced — agents have converged" };
+      }
+
+      return {
+        converged: false,
+        reason: `Adds (${adds}) > Kills (${kills}), ${activeHypotheses} active hypotheses`,
+      };
+    }
+
+    // -------------------------------------------------------------------
+    // Main session loop
+    // -------------------------------------------------------------------
+    stderrLine(`\n========================================`);
+    stderrLine(`  Brenner Robot Mode`);
+    stderrLine(`========================================`);
+    stderrLine(`Session:    ${sessionId}`);
+    stderrLine(`Question:   ${question.slice(0, 80)}${question.length > 80 ? "..." : ""}`);
+    stderrLine(`Max rounds: ${maxRounds}`);
+    stderrLine(`Agents:     BlueLake (${claudeBin}), RedForest (${codexBin}), GreenMountain (${geminiBin})`);
+    stderrLine(`Mode:       ${sequential ? "sequential" : "parallel"}`);
+    stderrLine(`========================================\n`);
+
+    let artifact = createEmptyArtifact(sessionId);
+    const sessionState: {
+      sessionId: string;
+      question: string;
+      rounds: Array<{
+        round: number;
+        adds: number;
+        kills: number;
+        edits: number;
+        errors: number;
+        converged: boolean;
+        reason: string;
+      }>;
+      finalArtifactVersion: number;
+    } = {
+      sessionId,
+      question,
+      rounds: [],
+      finalArtifactVersion: 0,
+    };
+
+    for (let round = 1; round <= maxRounds; round++) {
+      stderrLine(`--- Round ${round} of ${maxRounds} ---\n`);
+
+      const roundDir = join(sessionDir, `round_${round}`);
+      if (!existsSync(roundDir)) mkdirSync(roundDir, { recursive: true });
+
+      // Build prompts
+      const prompts = new Map<RobotAgent, string>();
+      for (const agent of agents) {
+        const prompt = round === 1
+          ? buildRound1Prompt(agent)
+          : buildRoundNPrompt(agent, artifact, round);
+        prompts.set(agent, prompt);
+      }
+
+      // Invoke agents (parallel or sequential)
+      const outputs = new Map<RobotAgent, string>();
+      if (sequential) {
+        for (const agent of agents) {
+          const prompt = prompts.get(agent)!;
+          const output = await invokeAgent(agent, prompt, roundDir);
+          outputs.set(agent, output);
+        }
+      } else {
+        const results = await Promise.allSettled(
+          agents.map(async (agent) => {
+            const prompt = prompts.get(agent)!;
+            const output = await invokeAgent(agent, prompt, roundDir);
+            return { agent, output };
+          })
+        );
+        for (const result of results) {
+          if (result.status === "fulfilled") {
+            outputs.set(result.value.agent, result.value.output);
+          } else {
+            stderrLine(`  [!] Agent invocation failed: ${result.reason}`);
+          }
+        }
+      }
+
+      // Parse deltas from all agent outputs
+      const ts = new Date().toISOString();
+      const allRoundDeltas: Array<ValidDelta & { timestamp: string; agent: string }> = [];
+      for (const agent of agents) {
+        const output = outputs.get(agent) ?? "";
+        if (!output.trim()) {
+          stderrLine(`  [!] ${agent.name}: no output`);
+          continue;
+        }
+        const agentDeltas = parseAgentDeltas(agent.name, output, ts);
+        stderrLine(`  ${agent.name}: ${agentDeltas.length} valid deltas`);
+        allRoundDeltas.push(...agentDeltas);
+      }
+
+      // Save raw deltas for this round
+      writeFileSync(
+        join(roundDir, "deltas.json"),
+        JSON.stringify(allRoundDeltas, null, 2),
+      );
+
+      // Merge deltas into artifact
+      const mergeResult = mergeArtifactWithTimestamps(artifact, allRoundDeltas);
+      let mergeErrors = 0;
+      if (mergeResult.ok) {
+        artifact = mergeResult.artifact;
+      } else {
+        mergeErrors = mergeResult.errors.length;
+        stderrLine(`  Merge: ${mergeErrors} errors`);
+        for (const err of mergeResult.errors.slice(0, 5)) {
+          stderrLine(`    - ${err.message}`);
+        }
+        // On failure the artifact is not updated — continue with what we have
+        // The applied deltas count is still tracked for convergence detection
+      }
+
+      // Lint the artifact
+      const lintReport = lintArtifact(artifact);
+      if (lintReport.violations.length > 0) {
+        const errorCount = lintReport.violations.filter((v) => v.severity === "error").length;
+        const warnCount = lintReport.violations.filter((v) => v.severity === "warning").length;
+        stderrLine(`  Lint: ${errorCount} errors, ${warnCount} warnings`);
+      } else {
+        stderrLine(`  Lint: clean`);
+      }
+
+      // Persist artifact markdown and state after each round
+      writeFileSync(
+        join(sessionDir, "artifact.md"),
+        renderArtifactMarkdown(artifact),
+      );
+      writeFileSync(
+        join(sessionDir, "session_state.json"),
+        JSON.stringify(artifact, null, 2),
+      );
+
+      // Count operations
+      const adds = allRoundDeltas.filter((d) => d.operation === "ADD").length;
+      const kills = allRoundDeltas.filter((d) => d.operation === "KILL").length;
+      const edits = allRoundDeltas.filter((d) => d.operation === "EDIT").length;
+
+      // Check convergence
+      const convergence = checkConvergence(allRoundDeltas, round, artifact);
+
+      sessionState.rounds.push({
+        round,
+        adds,
+        kills,
+        edits,
+        errors: mergeErrors,
+        converged: convergence.converged,
+        reason: convergence.reason,
+      });
+      sessionState.finalArtifactVersion = artifact.metadata.version;
+
+      stderrLine(`\n  Round ${round} summary: +${adds} adds, -${kills} kills, ~${edits} edits`);
+      stderrLine(`  ${convergence.reason}`);
+
+      if (convergence.converged) {
+        stderrLine(`\n  >>> Session converged after round ${round} <<<\n`);
+        break;
+      }
+
+      stderrLine("");
+    }
+
+    // Final summary
+    const activeHypotheses = (artifact.sections.hypothesis_slate as any[])
+      .filter((h: any) => !h.killed);
+    const killedHypotheses = (artifact.sections.hypothesis_slate as any[])
+      .filter((h: any) => h.killed);
+
+    // Save final session report
+    writeFileSync(
+      join(sessionDir, "robot_session.json"),
+      JSON.stringify(sessionState, null, 2),
+    );
+
+    stderrLine(`========================================`);
+    stderrLine(`  Session Complete`);
+    stderrLine(`========================================`);
+    stderrLine(`Rounds:            ${sessionState.rounds.length}`);
+    stderrLine(`Artifact version:  ${artifact.metadata.version}`);
+    stderrLine(`Active hypotheses: ${activeHypotheses.length}`);
+    stderrLine(`Killed hypotheses: ${killedHypotheses.length}`);
+    stderrLine(`Output:            ${join(sessionDir, "artifact.md")}`);
+    stderrLine(`========================================\n`);
+
+    if (jsonMode) {
+      stdoutLine(JSON.stringify({
+        ok: true,
+        sessionId,
+        sessionDir,
+        roundsCompleted: sessionState.rounds.length,
+        artifactVersion: artifact.metadata.version,
+        activeHypotheses: activeHypotheses.length,
+        killedHypotheses: killedHypotheses.length,
+        rounds: sessionState.rounds,
+        artifactFile: join(sessionDir, "artifact.md"),
+        stateFile: join(sessionDir, "session_state.json"),
+      }, null, 2));
+    } else {
+      // Print the final artifact to stdout for easy piping
+      stdoutLine(renderArtifactMarkdown(artifact));
+    }
+
     process.exit(0);
   }
 
