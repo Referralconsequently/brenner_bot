@@ -8012,6 +8012,9 @@ Example KILL:
     // Main session loop
     // -------------------------------------------------------------------
     // Read operator notes if provided
+    if (operatorNotesFile && !existsSync(operatorNotesFile)) {
+      stderrLine(`  [!] Operator notes file not found: ${operatorNotesFile}`);
+    }
     const operatorNotes = operatorNotesFile && existsSync(operatorNotesFile)
       ? readFileSync(operatorNotesFile, "utf8").trim()
       : undefined;
