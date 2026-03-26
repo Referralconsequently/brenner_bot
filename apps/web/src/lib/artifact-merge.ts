@@ -585,7 +585,7 @@ function applyEdit(
         return false;
       }
 
-      const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
+      const [normalizedPayload, aliasCorrections1] = normalizePayloadFields(payload as Record<string, unknown>);
       const sanitizedPayload: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(normalizedPayload)) {
         if (SYSTEM_ITEM_FIELDS.has(key)) continue;
@@ -600,7 +600,10 @@ function applyEdit(
         sanitizedPayload[key] = value;
       }
 
-      coerceDomainStrings(sanitizedPayload);
+      const coerceCorrections1 = coerceDomainStrings(sanitizedPayload);
+      for (const c of [...aliasCorrections1, ...coerceCorrections1]) {
+        warnings.push({ code: "AUTO_CORRECTED", message: `EDIT on research_thread (create): ${c}`, delta_raw: raw });
+      }
       artifact.sections.research_thread = {
         statement: "",
         context: "",
@@ -613,8 +616,11 @@ function applyEdit(
 
     // Merge fields into existing research thread
     if (isRecord(payload)) {
-      const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
-      coerceDomainStrings(normalizedPayload);
+      const [normalizedPayload, aliasCorrections2] = normalizePayloadFields(payload as Record<string, unknown>);
+      const coerceCorrections2 = coerceDomainStrings(normalizedPayload);
+      for (const c of [...aliasCorrections2, ...coerceCorrections2]) {
+        warnings.push({ code: "AUTO_CORRECTED", message: `EDIT on research_thread: ${c}`, delta_raw: raw });
+      }
       const rt = artifact.sections.research_thread;
       const rtRecord = rt as unknown as Record<string, unknown>;
       const shouldReplace = normalizedPayload.replace === true;
@@ -670,8 +676,11 @@ function applyEdit(
 
   // Merge payload fields
   if (isRecord(payload)) {
-    const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
-    coerceDomainStrings(normalizedPayload);
+    const [normalizedPayload, aliasCorrections3] = normalizePayloadFields(payload as Record<string, unknown>);
+    const coerceCorrections3 = coerceDomainStrings(normalizedPayload);
+    for (const c of [...aliasCorrections3, ...coerceCorrections3]) {
+      warnings.push({ code: "AUTO_CORRECTED", message: `EDIT on ${section} (${target_id}): ${c}`, delta_raw: raw });
+    }
     const shouldReplace = normalizedPayload.replace === true;
     const itemRecord = item as unknown as Record<string, unknown>;
     for (const [key, value] of Object.entries(normalizedPayload)) {
