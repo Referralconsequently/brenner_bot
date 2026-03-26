@@ -7718,7 +7718,7 @@ ${JSON.stringify(delta, null, 2)}
         role: AGENT_ROLES["Gemini"] ?? AGENT_ROLES["gemini-cli"],
         bin: geminiBin,
         buildArgs: (prompt: string) => [
-          "--sandbox", "--output-format", "text", "-p", prompt,
+          "--yolo", "--output-format", "text", "-p", prompt,
         ],
         buildEnv: () => ({
           ...process.env,
