@@ -234,7 +234,8 @@ export type MergeErrorCode =
   | "INVALID_SECTION"
   | "RT_ADD_NOT_ALLOWED"
   | "NO_THIRD_ALTERNATIVE"
-  | "BELOW_MINIMUM";
+  | "BELOW_MINIMUM"
+  | "DELTA_RUNTIME_ERROR";
 
 /** Merge error */
 export interface MergeError {
@@ -587,6 +588,7 @@ function applyEdit(
         sanitizedPayload[key] = value;
       }
 
+      coerceDomainStrings(sanitizedPayload);
       artifact.sections.research_thread = {
         statement: "",
         context: "",
@@ -600,6 +602,7 @@ function applyEdit(
     // Merge fields into existing research thread
     if (isRecord(payload)) {
       const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
+      coerceDomainStrings(normalizedPayload);
       const rt = artifact.sections.research_thread;
       const rtRecord = rt as unknown as Record<string, unknown>;
       const shouldReplace = normalizedPayload.replace === true;
@@ -656,6 +659,7 @@ function applyEdit(
   // Merge payload fields
   if (isRecord(payload)) {
     const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
+    coerceDomainStrings(normalizedPayload);
     const shouldReplace = normalizedPayload.replace === true;
     const itemRecord = item as unknown as Record<string, unknown>;
     for (const [key, value] of Object.entries(normalizedPayload)) {
@@ -823,16 +827,26 @@ export function mergeArtifact(
   for (const delta of timestampedDeltas) {
     let applied = false;
 
-    switch (delta.operation) {
-      case "ADD":
-        applied = applyAdd(artifact, delta, errors, warnings);
-        break;
-      case "EDIT":
-        applied = applyEdit(artifact, delta, errors, warnings);
-        break;
-      case "KILL":
-        applied = applyKill(artifact, delta, errors, warnings);
-        break;
+    try {
+      switch (delta.operation) {
+        case "ADD":
+          applied = applyAdd(artifact, delta, errors, warnings);
+          break;
+        case "EDIT":
+          applied = applyEdit(artifact, delta, errors, warnings);
+          break;
+        case "KILL":
+          applied = applyKill(artifact, delta, errors, warnings);
+          break;
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      errors.push({
+        code: "DELTA_RUNTIME_ERROR",
+        message: `${delta.operation} on ${delta.section}${delta.target_id ? ` (${delta.target_id})` : ""} threw: ${message}`,
+        delta_raw: delta.raw,
+      });
+      applied = false;
     }
 
     if (applied) {
