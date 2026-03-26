@@ -316,16 +316,19 @@ const FIELD_ALIASES: Record<string, string> = {
 /**
  * Normalize payload fields by replacing known aliases with their canonical names.
  * Only applies when the canonical field is not already present (avoids clobbering).
+ * Returns [normalizedPayload, corrections] where corrections lists what was renamed.
  */
-function normalizePayloadFields(payload: Record<string, unknown>): Record<string, unknown> {
+function normalizePayloadFields(payload: Record<string, unknown>): [Record<string, unknown>, string[]] {
   const out = { ...payload };
+  const corrections: string[] = [];
   for (const [alias, canonical] of Object.entries(FIELD_ALIASES)) {
     if (alias in out && !(canonical in out)) {
       out[canonical] = out[alias];
       delete out[alias];
+      corrections.push(`field "${alias}" renamed to "${canonical}"`);
     }
   }
-  return out;
+  return [out, corrections];
 }
 
 function isForbiddenPayloadKey(key: string): boolean {
@@ -361,13 +364,17 @@ const DOMAIN_STRING_FIELDS = new Set([
   "name",
 ]);
 
-/** Coerce known domain fields to strings in-place. */
-function coerceDomainStrings(payload: Record<string, unknown>): void {
+/** Coerce known domain fields to strings in-place. Returns list of corrections applied. */
+function coerceDomainStrings(payload: Record<string, unknown>): string[] {
+  const corrections: string[] = [];
   for (const field of DOMAIN_STRING_FIELDS) {
     if (field in payload && typeof payload[field] !== "string") {
+      const originalType = Array.isArray(payload[field]) ? "array" : typeof payload[field];
       payload[field] = JSON.stringify(payload[field]);
+      corrections.push(`field "${field}" coerced from ${originalType} to string`);
     }
   }
+  return corrections;
 }
 
 function getItemsForSection(artifact: Artifact, section: DeltaSection): BaseItem[] {
@@ -517,7 +524,7 @@ function applyAdd(
     return false;
   }
 
-  const normalizedPayload = normalizePayloadFields(payload as Record<string, unknown>);
+  const [normalizedPayload, aliasCorrections] = normalizePayloadFields(payload as Record<string, unknown>);
   const sanitizedPayload: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(normalizedPayload)) {
     if (SYSTEM_ITEM_FIELDS.has(key)) continue;
@@ -534,7 +541,12 @@ function applyAdd(
 
   // Type-coerce known domain fields that must be strings.
   // LLMs occasionally emit object-valued payloads for these fields (e.g., { calculation: { ... } }).
-  coerceDomainStrings(sanitizedPayload);
+  const coerceCorrections = coerceDomainStrings(sanitizedPayload);
+
+  // Emit warnings for any auto-corrections applied
+  for (const c of [...aliasCorrections, ...coerceCorrections]) {
+    warnings.push({ code: "AUTO_CORRECTED", message: `ADD on ${section}: ${c}`, delta_raw: raw });
+  }
 
   const newItem: BaseItem = {
     ...sanitizedPayload,

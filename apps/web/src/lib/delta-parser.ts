@@ -252,6 +252,7 @@ function validateDelta(raw: unknown, rawJson: string): ParsedDelta {
   }
 
   // Validate payload exists for ADD/EDIT
+  // Arrays are handled upstream (expandArrayPayload) — by this point payload must be a record
   if ((operation === "ADD" || operation === "EDIT") && !isRecord(payload)) {
     return {
       valid: false,
@@ -385,24 +386,58 @@ function sanitizeJson(str: string): string {
 }
 
 /**
+ * If an ADD delta has an array payload (e.g. "payload": [{...}, {...}]),
+ * expand it into individual ADD deltas — one per array element.
+ * Non-ADD operations or non-array payloads are returned as-is.
+ */
+function expandArrayPayload(parsed: unknown, rawJson: string): ParsedDelta[] {
+  if (!isRecord(parsed)) return [validateDelta(parsed, rawJson)];
+
+  const { operation, payload } = parsed;
+  if (operation !== "ADD" || !Array.isArray(payload)) {
+    return [validateDelta(parsed, rawJson)];
+  }
+
+  // Expand each array element into its own ADD delta
+  const results: ParsedDelta[] = [];
+  for (let i = 0; i < payload.length; i++) {
+    const item = payload[i];
+    if (!isRecord(item)) {
+      results.push({
+        valid: false,
+        error: `Array payload item [${i}] is not an object`,
+        raw: rawJson,
+      });
+      continue;
+    }
+    const expanded = { ...parsed, payload: item };
+    results.push(validateDelta(expanded, rawJson));
+  }
+  return results.length > 0 ? results : [validateDelta(parsed, rawJson)];
+}
+
+/**
  * Parse a single delta JSON string.
  *
+ * Handles array payloads for ADD operations by expanding them into
+ * individual deltas (one per array element).
+ *
  * @param jsonStr - Raw JSON string from a delta block
- * @returns Parsed and validated delta
+ * @returns Parsed and validated delta(s)
  */
-function parseDeltaBlock(jsonStr: string): ParsedDelta {
+function parseDeltaBlock(jsonStr: string): ParsedDelta[] {
   try {
     const parsed: unknown = JSON.parse(jsonStr);
-    return validateDelta(parsed, jsonStr);
+    return expandArrayPayload(parsed, jsonStr);
   } catch (e) {
     // Try sanitizing common errors (trailing commas, comments)
     try {
       const sanitized = sanitizeJson(jsonStr);
       const parsed = JSON.parse(sanitized);
-      return validateDelta(parsed, jsonStr); // Use original raw for debugging
+      return expandArrayPayload(parsed, jsonStr); // Use original raw for debugging
     } catch {
       const error = e instanceof Error ? e.message : "Unknown JSON parse error";
-      return { valid: false, error: `Invalid JSON: ${error}`, raw: jsonStr };
+      return [{ valid: false, error: `Invalid JSON: ${error}`, raw: jsonStr }];
     }
   }
 }
@@ -420,7 +455,8 @@ function parseDeltaBlock(jsonStr: string): ParsedDelta {
  */
 export function parseDeltaMessage(body: string): ParseResult {
   const blocks = extractDeltaBlocks(body);
-  const deltas = blocks.map(parseDeltaBlock);
+  // parseDeltaBlock returns an array (array payloads expand to multiple deltas)
+  const deltas = blocks.flatMap(parseDeltaBlock);
 
   const validCount = deltas.filter((d) => d.valid).length;
   const invalidCount = deltas.length - validCount;
