@@ -8,37 +8,71 @@ Repository: <https://github.com/Dicklesworthstone/brenner_bot>
 
 ---
 
-## [Unreleased]
+## [v0.4.0] - 2026-03-31
 
-17 commits since v0.3.0, spanning 2026-01-07 through 2026-03-18.
+**Robot Mode, Session Replay, Scoring CLI & Web Integration**
+
+### Robot Mode & Multi-Agent Orchestration
+
+- HITL step mode: run one robot round then exit for human review; resume by re-running ([3493705](https://github.com/Dicklesworthstone/brenner_bot/commit/3493705))
+- Robot-stress command: adversarial stress testing on surviving hypotheses ([3493705](https://github.com/Dicklesworthstone/brenner_bot/commit/3493705))
+- Per-agent health reporting with timeout tracking and SIGKILL escalation ([3493705](https://github.com/Dicklesworthstone/brenner_bot/commit/3493705))
+- Fix four robot mode bugs: partial merge, SIGKILL escalation, convergence, unused import ([41e83c0](https://github.com/Dicklesworthstone/brenner_bot/commit/41e83c0))
+- Clear timeout timers in spawn error handler ([02cb44a](https://github.com/Dicklesworthstone/brenner_bot/commit/02cb44a))
+- Switch from --sandbox to --yolo flag for Gemini CLI invocation ([2cf2cf7](https://github.com/Dicklesworthstone/brenner_bot/commit/2cf2cf7))
+- Warn when operator notes file not found instead of failing silently ([fbdfdb8](https://github.com/Dicklesworthstone/brenner_bot/commit/fbdfdb8))
+
+### Session Replay Infrastructure
+
+- Add `session record` CLI command: converts robot session directories into reproducible SessionRecord JSON with content hashes, agent roster, and trace metadata
+- Add `session replay --mode trace` CLI command: step-through replay of recorded sessions showing round-by-round message summaries
+
+### Web App: Robot Session Viewer
+
+- Robot sessions (from `brenner session robot`) now appear in the web app sessions list
+- Dedicated robot session detail view with round timeline, agent health, convergence status, and artifact rendering
+- Robot sessions load from `BRENNER_ROBOT_SESSIONS_DIR` or `<repo>/artifacts/` — no Agent Mail needed
+
+### Scoring CLI (Documentation Fix)
+
+- `brenner score`, `brenner feedback`, and `brenner leaderboard` were already implemented — corrected README which incorrectly stated they were planned
+
+### Multi-Agent Tutorial Data
+
+- Centralized multi-agent cockpit tutorial data file with path metadata, 10 step definitions, code blocks, troubleshooting, and checkpoints
+- Added exports to tutorial-data index for the multi-agent-cockpit track
 
 ### Artifact Merge & Delta Pipeline
 
-- Promote "reason" to first-class system field, remove kill_reason alias ([1d860fb](https://github.com/Dicklesworthstone/brenner_bot/commit/1d860fb34d125e4882e427fbfa5220157c94a823))
-- Fix delta fence leak, field aliasing, and KILL reason normalization ([5606c92](https://github.com/Dicklesworthstone/brenner_bot/commit/5606c92da5b37689f529b8464093c84190c52c4a))
-- Resolve three crash/compat bugs in memory context and artifact merge ([b43ed40](https://github.com/Dicklesworthstone/brenner_bot/commit/b43ed407c53387867e1becd38f68b54c62fcf532))
+- Promote "reason" to first-class system field, remove kill_reason alias ([1d860fb](https://github.com/Dicklesworthstone/brenner_bot/commit/1d860fb))
+- Expand array payloads into individual ADD deltas and track field corrections ([9e4ddb1](https://github.com/Dicklesworthstone/brenner_bot/commit/9e4ddb1))
+- Surface field correction warnings during EDIT operations ([3b5636c](https://github.com/Dicklesworthstone/brenner_bot/commit/3b5636c))
+- Catch delta runtime errors and coerce domain strings on research threads ([44319ab](https://github.com/Dicklesworthstone/brenner_bot/commit/44319ab))
+- Fix delta fence leak, field aliasing, and KILL reason normalization ([5606c92](https://github.com/Dicklesworthstone/brenner_bot/commit/5606c92))
+- Resolve three crash/compat bugs in memory context and artifact merge ([b43ed40](https://github.com/Dicklesworthstone/brenner_bot/commit/b43ed40))
 
 ### Toolchain & Dependencies
 
-- Update toolchain manifest pins to match tested versions ([3534cbb](https://github.com/Dicklesworthstone/brenner_bot/commit/3534cbbd39a6a36442e0765db6b8cb38b4226442))
-- Update stale NTM and CASS version pins in toolchain manifest ([18bc01b](https://github.com/Dicklesworthstone/brenner_bot/commit/18bc01bba922f358fb66838abbb0e8e965e46973))
+- Update toolchain manifest pins to match tested versions ([3534cbb](https://github.com/Dicklesworthstone/brenner_bot/commit/3534cbb))
+- Update stale NTM and CASS version pins in toolchain manifest ([18bc01b](https://github.com/Dicklesworthstone/brenner_bot/commit/18bc01b))
 
 ### Code Quality & Testing
 
-- Resolve ESLint set-state-in-effect errors in React hooks ([bc4acf8](https://github.com/Dicklesworthstone/brenner_bot/commit/bc4acf87b3a3201d161d888cfde8b85bb953e495))
-- Update tests and regex for operator-library parsing ([d2ff760](https://github.com/Dicklesworthstone/brenner_bot/commit/d2ff7600cdd88b5ca60c6eb617a45629e71e1e10))
-- Add afterEach cleanup to prevent /tmp inode exhaustion in tests ([44b5b67](https://github.com/Dicklesworthstone/brenner_bot/commit/44b5b67d6f47d1c8c47692c26b758b357fad360e))
+- TypeScript: 0 errors, 4,505 tests passing, production build clean
+- Resolve ESLint set-state-in-effect errors in React hooks ([bc4acf8](https://github.com/Dicklesworthstone/brenner_bot/commit/bc4acf8))
+- Update tests and regex for operator-library parsing ([d2ff760](https://github.com/Dicklesworthstone/brenner_bot/commit/d2ff760))
+- Add afterEach cleanup to prevent /tmp inode exhaustion in tests ([44b5b67](https://github.com/Dicklesworthstone/brenner_bot/commit/44b5b67))
 
 ### Licensing & Metadata
 
-- Update license to MIT with OpenAI/Anthropic Rider ([1b67af2](https://github.com/Dicklesworthstone/brenner_bot/commit/1b67af2d34194a19d87b3c0277ab4ea32587b85a))
-- Add MIT License file ([5d5a99e](https://github.com/Dicklesworthstone/brenner_bot/commit/5d5a99e1820cecdcb54283b42b9353ba29cc0c48))
-- Add GitHub social preview image ([5abfd0e](https://github.com/Dicklesworthstone/brenner_bot/commit/5abfd0ebb8f184d9ad34c86ec58668260da95f0c))
+- Update license to MIT with OpenAI/Anthropic Rider ([1b67af2](https://github.com/Dicklesworthstone/brenner_bot/commit/1b67af2))
+- Add MIT License file ([5d5a99e](https://github.com/Dicklesworthstone/brenner_bot/commit/5d5a99e))
+- Add GitHub social preview image ([5abfd0e](https://github.com/Dicklesworthstone/brenner_bot/commit/5abfd0e))
 
 ### CI/CD
 
-- Add notify-acfs workflow for ACFS lesson registry sync ([b4c3273](https://github.com/Dicklesworthstone/brenner_bot/commit/b4c3273df96dbd5c5cb025ada72810f9ba423b1d))
-- Improve GitHub Actions workflows with best practices ([66d01ac](https://github.com/Dicklesworthstone/brenner_bot/commit/66d01acae519821aebf23871b434499b3e207c23))
+- Add notify-acfs workflow for ACFS lesson registry sync ([b4c3273](https://github.com/Dicklesworthstone/brenner_bot/commit/b4c3273))
+- Improve GitHub Actions workflows with best practices ([66d01ac](https://github.com/Dicklesworthstone/brenner_bot/commit/66d01ac))
 
 ---
 

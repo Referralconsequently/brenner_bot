@@ -147,7 +147,7 @@ When you claim "Brenner said X" or "Brenner's approach is Y":
 
 All contributions MUST use the delta format:
 
-```delta
+```json
 {
   "operation": "ADD",
   "section": "hypothesis_slate",
@@ -245,7 +245,7 @@ When referencing Brenner's experimental philosophy:
 
 All tests MUST use the delta format:
 
-```delta
+```json
 {
   "operation": "ADD",
   "section": "discriminative_tests",
@@ -364,7 +364,7 @@ When invoking epistemic hygiene:
 
 ### For Anomalies:
 
-```delta
+```json
 {
   "operation": "ADD",
   "section": "anomaly_register",
@@ -382,7 +382,7 @@ When invoking epistemic hygiene:
 
 ### For Critiques:
 
-```delta
+```json
 {
   "operation": "ADD",
   "section": "adversarial_critique",
@@ -400,7 +400,7 @@ When invoking epistemic hygiene:
 
 ### For Scale Checks (as Assumptions):
 
-```delta
+```json
 {
   "operation": "ADD",
   "section": "assumption_ledger",
@@ -419,7 +419,7 @@ When invoking epistemic hygiene:
 
 ### For Theory Kills:
 
-```delta
+```json
 {
   "operation": "KILL",
   "section": "hypothesis_slate",
@@ -483,7 +483,7 @@ All agents have access to these operators. Invoke by symbol in rationales:
 
 ### Delta Format Quick Reference
 
-```delta
+```json
 {
   "operation": "ADD" | "EDIT" | "KILL",
   "section": "hypothesis_slate" | "predictions_table" | "discriminative_tests" | "assumption_ledger" | "anomaly_register" | "adversarial_critique",
@@ -511,7 +511,7 @@ Example recovery message:
 
 [Resending with proper delta formatting — previous inline JSON was not parsed.]
 
-```delta
+```json
 {
   "operation": "ADD",
   "section": "hypothesis_slate",
@@ -543,7 +543,7 @@ architecture could use microcode (epigenetic memory) as an intermediate layer.
 
 ## Deltas
 
-```delta
+```json
 {
   "operation": "ADD",
   "section": "hypothesis_slate",

@@ -500,6 +500,11 @@ Status legend:
 | `evidence render --thread-id <id>` | Render evidence pack to markdown | ✅ |
 | `evidence post --thread-id <id> ...` | Post evidence summary to Agent Mail thread | ✅ |
 | `evidence verify --thread-id <id> ...` | Mark an evidence record as verified | ✅ |
+| `score <session-id> [--all] [--json]` | Compute 7-dimension Brenner scorecard for a session | ✅ |
+| `feedback <session-id> [--json]` | Generate improvement suggestions with Brenner quotes | ✅ |
+| `leaderboard [--limit N] [--json]` | Rank sessions by score | ✅ |
+| `session record --session-dir <path> [--out-file <path>]` | Convert robot session to reproducible SessionRecord JSON | ✅ |
+| `session replay --record-file <path> [--mode trace]` | Step through a recorded session | ✅ |
 
 #### Config precedence (contract)
 
@@ -1925,7 +1930,7 @@ brenner critique accept C-RS20251230-001 \
 
 ## Scoring & Evaluation System
 
-> **Note:** The scoring CLI commands (`brenner score`, `brenner feedback`, `brenner leaderboard`) are **planned but not yet implemented**. The rubric below documents the intended evaluation framework. Currently, scoring happens during session compilation and is embedded in compiled artifacts.
+> **Note:** The scoring CLI commands are fully implemented: `brenner score <session-id> [--json] [--all]` computes the 7-dimension scorecard, `brenner feedback <session-id> [--json]` generates improvement suggestions with Brenner quotes, and `brenner leaderboard [--limit N] [--json]` ranks sessions by score.
 
 The project implements a 14-criterion evaluation rubric for scoring Brenner method adherence. Scores are computed per-contribution and aggregated at the session level.
 
