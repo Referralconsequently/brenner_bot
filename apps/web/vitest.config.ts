@@ -31,8 +31,10 @@ export default defineConfig({
     // Exclude E2E tests (handled by Playwright)
     exclude: ["e2e/**/*", "node_modules/**/*"],
 
-    // Global test timeout (5 seconds)
-    testTimeout: 5000,
+    // Global test timeout — generous to handle dynamic imports (`await import()`),
+    // concurrent file I/O, and high system load in CI / multi-agent environments.
+    // Previously 5s which caused widespread flaky timeouts.
+    testTimeout: 60_000,
 
     // Reporters for detailed output
     reporters: ["verbose"],

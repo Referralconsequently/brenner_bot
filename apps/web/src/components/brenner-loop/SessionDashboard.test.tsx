@@ -155,7 +155,7 @@ vi.mock("@/lib/brenner-loop", async () => {
 });
 
 describe("SessionDashboard keyboard shortcuts", () => {
-  it("uses ArrowLeft/ArrowRight to navigate phases", { timeout: 15_000 }, async () => {
+  it("uses ArrowLeft/ArrowRight to navigate phases", async () => {
     const user = userEvent.setup();
     mocks.prev.mockClear();
     mocks.next.mockClear();
@@ -171,7 +171,7 @@ describe("SessionDashboard keyboard shortcuts", () => {
     expect(mocks.next).toHaveBeenCalledTimes(1);
   });
 
-  it("does not navigate phases when Shift+Arrow is pressed", { timeout: 15_000 }, async () => {
+  it("does not navigate phases when Shift+Arrow is pressed", async () => {
     const user = userEvent.setup();
     mocks.prev.mockClear();
     mocks.phase = "level_split";

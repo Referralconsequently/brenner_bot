@@ -713,7 +713,7 @@ describe("Critiques With Alternatives", () => {
 // ============================================================================
 
 describe("Concurrency", () => {
-  test("concurrent saveCritique calls do not drop writes", { timeout: 15_000 }, async () => {
+  test("concurrent saveCritique calls do not drop writes", async () => {
     const sessionId = "CONCURRENT";
     const critiques = await Promise.all(
       Array.from({ length: 10 }, (_, i) =>

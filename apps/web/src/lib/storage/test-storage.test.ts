@@ -881,7 +881,7 @@ describe("TestStorage", () => {
   // ============================================================================
 
   describe("Concurrency", () => {
-    it("concurrent saveTest calls do not drop writes", { timeout: 15_000 }, async () => {
+    it("concurrent saveTest calls do not drop writes", async () => {
       const sessionId = "CONCURRENT";
       const tests = Array.from({ length: 10 }, (_, i) => createTestTestRecord(sessionId, i + 1));
 

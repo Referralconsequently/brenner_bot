@@ -1,9 +1,9 @@
 import { mkdir, rmdir, stat } from "node:fs/promises";
 import { join, dirname } from "node:path";
 
-const LOCK_STALE_MS = 15000; // 15 seconds
-const LOCK_RETRY_DELAY_MS = 100;
-const MAX_RETRIES = 50; // 5 seconds total wait
+const LOCK_STALE_MS = 30_000; // 30 seconds
+const LOCK_RETRY_DELAY_MS = 50;
+const MAX_RETRIES = 200; // ~15s total with jitter
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -49,8 +49,9 @@ async function acquireLock(lockPath: string): Promise<void> {
         // Lock might have been deleted just now
       }
 
-      // Wait and retry
-      await sleep(LOCK_RETRY_DELAY_MS);
+      // Wait with jitter to avoid thundering herd
+      const jitter = Math.floor(Math.random() * LOCK_RETRY_DELAY_MS);
+      await sleep(LOCK_RETRY_DELAY_MS + jitter);
     }
   }
 

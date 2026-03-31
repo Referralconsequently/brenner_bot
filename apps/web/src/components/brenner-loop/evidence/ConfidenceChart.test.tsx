@@ -56,7 +56,7 @@ function createTestEntry(overrides: Partial<EvidenceEntry> = {}): EvidenceEntry 
 }
 
 describe("ConfidenceChart", () => {
-  it("renders empty state when no entries", { timeout: 15_000 }, async () => {
+  it("renders empty state when no entries", async () => {
     const { ConfidenceChart } = await import("./ConfidenceChart");
     render(<ConfidenceChart entries={[]} />);
 

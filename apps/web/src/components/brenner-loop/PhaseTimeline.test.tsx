@@ -55,7 +55,7 @@ describe("PhaseTimeline", () => {
     expect(onPhaseClick).toHaveBeenCalledWith("exclusion_test");
   });
 
-  it("supports arrow-key navigation and Enter to activate", { timeout: 15_000 }, async () => {
+  it("supports arrow-key navigation and Enter to activate", async () => {
     const user = userEvent.setup();
     const onPhaseClick = vi.fn();
 
