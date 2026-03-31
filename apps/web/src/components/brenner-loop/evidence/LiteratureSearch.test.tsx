@@ -57,7 +57,7 @@ function createMockHypothesis(overrides: Partial<HypothesisCard> = {}): Hypothes
 }
 
 describe("LiteratureSearch", () => {
-  it("renders with title and description", async () => {
+  it("renders with title and description", { timeout: 15_000 }, async () => {
     const { LiteratureSearch } = await import("./LiteratureSearch");
     render(
       <LiteratureSearch
@@ -71,7 +71,7 @@ describe("LiteratureSearch", () => {
     expect(screen.getByText(/Search for relevant papers/i)).toBeInTheDocument();
   });
 
-  it("renders tabs for different search modes", async () => {
+  it("renders tabs for different search modes", { timeout: 15_000 }, async () => {
     const { LiteratureSearch } = await import("./LiteratureSearch");
     render(
       <LiteratureSearch

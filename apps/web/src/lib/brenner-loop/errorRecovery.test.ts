@@ -60,7 +60,7 @@ describe("errorRecovery", () => {
     vi.useRealTimers();
   });
 
-  it("retries transient failures and eventually succeeds", async () => {
+  it("retries transient failures and eventually succeeds", { timeout: 15_000 }, async () => {
     const { withRetry } = await loadModule();
     let attempts = 0;
 

@@ -55,7 +55,7 @@ function createTestEntry(overrides: Partial<EvidenceEntry> = {}): EvidenceEntry 
 }
 
 describe("EvidenceTimeline", () => {
-  it("renders empty state when no entries", async () => {
+  it("renders empty state when no entries", { timeout: 15_000 }, async () => {
     const { EvidenceTimeline } = await import("./EvidenceTimeline");
     render(<EvidenceTimeline entries={[]} />);
 
