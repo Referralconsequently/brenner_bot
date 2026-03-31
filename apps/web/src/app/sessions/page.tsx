@@ -7,6 +7,7 @@ import { SessionList } from "@/components/brenner-loop";
 import { AgentMailClient, type AgentMailMessage } from "@/lib/agentMail";
 import { isLabModeEnabled, checkOrchestrationAuth } from "@/lib/auth";
 import { computeThreadStatus, type SessionPhase } from "@/lib/threadStatus";
+import { listRobotSessions, type RobotThreadSummary } from "@/lib/robot-sessions";
 import { Jargon } from "@/components/jargon";
 import type { Metadata } from "next";
 
@@ -395,6 +396,14 @@ export default async function SessionsListPage() {
     }
   }
 
+  // Load robot mode sessions (always available — no lab mode or Agent Mail needed)
+  let robotSessions: RobotThreadSummary[] = [];
+  try {
+    robotSessions = await listRobotSessions();
+  } catch {
+    // Robot sessions are optional — silently skip on error
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-10">
       {/* Header */}
@@ -453,6 +462,68 @@ export default async function SessionsListPage() {
             <ThreadCard key={thread.threadId} thread={thread} index={index} />
           ))}
         </div>
+      )}
+
+      {/* Robot Mode Sessions */}
+      {robotSessions.length > 0 && (
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Robot Sessions
+              <span className="ml-2 text-sm font-medium text-violet-600 dark:text-violet-400">
+                ({robotSessions.length})
+              </span>
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Sessions generated locally by <span className="font-mono">brenner session robot</span>.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {robotSessions.map((rs, index) => (
+              <Link
+                key={rs.threadId}
+                href={`/sessions/${rs.threadId}`}
+                className={`group block rounded-xl border border-border bg-card p-5 hover:border-violet-500/30 hover:bg-muted/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/5 active:translate-y-0 active:scale-[0.99] transition-all duration-200 touch-manipulation animate-fade-in-up focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring stagger-${Math.min(index + 1, 10)}`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <div className="font-mono text-sm font-medium text-foreground truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                      {rs.threadId}
+                    </div>
+                    {rs.question && (
+                      <div className="text-xs text-muted-foreground line-clamp-1">{rs.question}</div>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800">
+                        robot mode
+                      </span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${PHASE_BADGE_CLASSES[rs.phase]}`}>
+                        {PHASE_LABELS[rs.phase]}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground border border-border">
+                        {rs.roundsCompleted} round{rs.roundsCompleted !== 1 ? "s" : ""}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground border border-border">
+                        {rs.activeHypotheses} active / {rs.killedHypotheses} killed
+                      </span>
+                    </div>
+                    {rs.participants.length > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        <span className="font-mono">{rs.participants.join(", ")}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground">{formatRelativeTs(rs.updatedAt)}</div>
+                    </div>
+                    <ChevronRightIcon className="size-4 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
 
       <section className="space-y-3">

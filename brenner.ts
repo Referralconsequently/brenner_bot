@@ -147,6 +147,13 @@ import {
   type SessionDimensionScore,
   type DimensionScore,
 } from "./apps/web/src/lib/schemas/scorecard";
+import {
+  createEmptySessionRecord,
+  createTraceMessage,
+  computeContentHash,
+  validateSessionRecord,
+  isReplayable,
+} from "./apps/web/src/lib/schemas/session-replay";
 
 function isRecord(value: Json): value is { [key: string]: Json } {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -1492,6 +1499,16 @@ Commands:
     --step: Run ONE round then exit (HITL mode). Resume by running again.
     --operator-notes <path>: Inject operator corrections into round prompts.
     robot-stress: Adversarial stress test on surviving hypotheses.
+
+  session record --session-dir <path> [--out-file <path>] [--json]
+  session replay --record-file <path> [--mode trace|verification|comparison] [--json]
+
+    Record: Convert a robot session directory into a SessionRecord JSON
+    (inputs, trace with content hashes, outputs). Enables reproducibility
+    and cross-session comparison.
+
+    Replay: Step through a recorded session. Trace mode displays round-by-round
+    message summaries. Verification and comparison modes are planned.
 
     By default, sends role-specific prompts to each recipient using name heuristics:
       - Codex/GPT → Hypothesis Generator
@@ -8435,6 +8452,271 @@ For KILL:
     }
 
     process.exit(0);
+  }
+
+  // ============================================================================
+  // Session Record — convert a robot session dir into a SessionRecord JSON
+  // ============================================================================
+  if (normalizedTop === "session" && sub === "record") {
+    const sessionDirRaw = asStringFlag(flags, "session-dir");
+    if (!sessionDirRaw) throw new Error("Missing --session-dir.");
+    const sessionDir = resolve(sessionDirRaw);
+    const jsonMode = asBoolFlag(flags, "json");
+    const outFile = asStringFlag(flags, "out-file");
+
+    // Read robot_session.json
+    const metaPath = join(sessionDir, "robot_session.json");
+    const statePath = join(sessionDir, "session_state.json");
+
+    let metaRaw: string;
+    try {
+      metaRaw = await Bun.file(metaPath).text();
+    } catch {
+      throw new Error(`robot_session.json not found in ${sessionDir}`);
+    }
+
+    const meta = JSON.parse(metaRaw) as {
+      sessionId: string;
+      question: string;
+      rounds: Array<{
+        round: number;
+        adds: number;
+        kills: number;
+        edits: number;
+        errors: number;
+        converged: boolean;
+        reason: string;
+        agents: Record<string, { status: string; deltas: number; error?: string }>;
+      }>;
+      finalArtifactVersion: number;
+    };
+
+    let stateRaw: string | null = null;
+    try {
+      stateRaw = await Bun.file(statePath).text();
+    } catch {
+      // state file optional
+    }
+
+    const artifact = stateRaw ? JSON.parse(stateRaw) : null;
+
+    // Build session record
+    const record = createEmptySessionRecord(meta.sessionId);
+    record.inputs.kickoff.thread_id = meta.sessionId;
+    record.inputs.kickoff.question = meta.question;
+
+    // Populate agent roster from first round agents
+    const firstRound = meta.rounds[0];
+    if (firstRound) {
+      const agentRoles: Record<string, string> = {
+        bluelake: "test_designer",
+        redforest: "hypothesis_generator",
+        greenmountain: "adversarial_critic",
+      };
+      for (const agentName of Object.keys(firstRound.agents)) {
+        const role = agentRoles[agentName.toLowerCase()] ?? "hypothesis_generator";
+        record.inputs.agent_roster.push({
+          agent_name: agentName,
+          role: role as "hypothesis_generator" | "test_designer" | "adversarial_critic",
+          program: agentName.toLowerCase() === "bluelake" ? "claude-code" : agentName.toLowerCase() === "redforest" ? "codex-cli" : "gemini-cli",
+          model: agentName.toLowerCase() === "bluelake" ? "opus-4.5" : agentName.toLowerCase() === "redforest" ? "gpt-5.2" : "gemini-3",
+        });
+      }
+    }
+
+    // Populate trace rounds from agent output files
+    const startedAt = new Date().toISOString();
+    record.trace.started_at = startedAt;
+
+    for (const round of meta.rounds) {
+      const roundDir = join(sessionDir, `round_${round.round}`);
+      const roundStarted = new Date().toISOString();
+      const traceMessages = [];
+
+      for (const agentName of Object.keys(round.agents)) {
+        const outputPath = join(roundDir, `${agentName.toLowerCase()}_out.md`);
+        let body = "";
+        try {
+          body = await Bun.file(outputPath).text();
+        } catch {
+          continue;
+        }
+
+        const traceMsg = await createTraceMessage(
+          agentName,
+          "DELTA",
+          body,
+          { subject: `DELTA[${agentName}]: Round ${round.round}` },
+        );
+        traceMessages.push(traceMsg);
+      }
+
+      record.trace.rounds.push({
+        round_number: round.round,
+        started_at: roundStarted,
+        ended_at: new Date().toISOString(),
+        messages: traceMessages,
+        compiled_artifact_hash: undefined,
+        duration_ms: 0,
+      });
+    }
+
+    record.trace.ended_at = new Date().toISOString();
+    record.trace.total_duration_ms = 0;
+
+    // Populate outputs
+    if (artifact) {
+      const sections = artifact.sections ?? {};
+      const hypotheses = (sections.hypothesis_slate ?? []) as unknown[];
+      const tests = (sections.discriminative_tests ?? []) as unknown[];
+      const assumptions = (sections.assumption_ledger ?? []) as unknown[];
+      const anomalies = (sections.anomaly_register ?? []) as unknown[];
+      const critiques = (sections.adversarial_critique ?? []) as unknown[];
+
+      record.outputs.hypothesis_count = hypotheses.length;
+      record.outputs.test_count = tests.length;
+      record.outputs.assumption_count = assumptions.length;
+      record.outputs.anomaly_count = anomalies.length;
+      record.outputs.critique_count = critiques.length;
+      record.outputs.final_artifact_hash = await computeContentHash(stateRaw!);
+    }
+
+    // Validate
+    const validation = validateSessionRecord(record);
+
+    if (outFile) {
+      await Bun.write(outFile, JSON.stringify(record, null, 2));
+      stderrLine(`Session record written to ${outFile}`);
+    }
+
+    if (jsonMode || !outFile) {
+      stdoutLine(JSON.stringify({
+        ok: true,
+        recordId: record.id,
+        sessionId: record.session_id,
+        rounds: record.trace.rounds.length,
+        messages: record.trace.rounds.reduce((s, r) => s + r.messages.length, 0),
+        replayable: isReplayable(record),
+        valid: validation.valid,
+        ...(outFile ? { file: outFile } : {}),
+      }, null, 2));
+    }
+
+    process.exit(0);
+  }
+
+  // ============================================================================
+  // Session Replay — trace through a recorded session step by step
+  // ============================================================================
+  if (normalizedTop === "session" && sub === "replay") {
+    const recordFile = asStringFlag(flags, "record-file");
+    if (!recordFile) throw new Error("Missing --record-file.");
+    const jsonMode = asBoolFlag(flags, "json");
+    const mode = (asStringFlag(flags, "mode") ?? "trace") as "verification" | "comparison" | "trace";
+
+    let recordRaw: string;
+    try {
+      recordRaw = await Bun.file(resolve(recordFile)).text();
+    } catch {
+      throw new Error(`Cannot read record file: ${recordFile}`);
+    }
+
+    const parsed = JSON.parse(recordRaw);
+    const validation = validateSessionRecord(parsed);
+    if (!validation.valid) {
+      throw new Error(`Invalid session record: ${validation.errors.join("; ")}`);
+    }
+
+    const record = validation.data;
+
+    if (!isReplayable(record)) {
+      throw new Error("Session record is not replayable (missing rounds, roster, or outputs).");
+    }
+
+    if (mode === "trace") {
+      // Trace mode: step through recorded messages and display
+      if (jsonMode) {
+        const traceOutput = {
+          ok: true,
+          mode: "trace",
+          sessionId: record.session_id,
+          rounds: record.trace.rounds.map((r) => ({
+            round: r.round_number,
+            messages: r.messages.map((m) => ({
+              from: m.from,
+              type: m.type,
+              subject: m.subject ?? "",
+              contentLength: m.content_length,
+              contentHash: m.content_hash,
+              timestamp: m.timestamp,
+            })),
+            compiledArtifactHash: r.compiled_artifact_hash ?? null,
+          })),
+          outputs: {
+            hypothesisCount: record.outputs.hypothesis_count,
+            testCount: record.outputs.test_count,
+            assumptionCount: record.outputs.assumption_count ?? 0,
+            anomalyCount: record.outputs.anomaly_count ?? 0,
+            critiqueCount: record.outputs.critique_count ?? 0,
+            grade: record.outputs.scorecard_grade ?? null,
+            points: record.outputs.scorecard_points ?? null,
+            finalArtifactHash: record.outputs.final_artifact_hash,
+          },
+          interventionCount: record.trace.interventions.length,
+        };
+        stdoutLine(JSON.stringify(traceOutput, null, 2));
+      } else {
+        stdoutLine(`\n═══════════════════════════════════════════════════════════`);
+        stdoutLine(`  SESSION REPLAY (trace mode): ${record.session_id}`);
+        stdoutLine(`═══════════════════════════════════════════════════════════\n`);
+
+        stdoutLine(`Record ID: ${record.id}`);
+        stdoutLine(`Created: ${record.created_at}`);
+        stdoutLine(`Roster: ${record.inputs.agent_roster.map((a) => `${a.agent_name} (${a.role})`).join(", ")}`);
+        if (record.inputs.kickoff.question) {
+          stdoutLine(`Question: ${record.inputs.kickoff.question}`);
+        }
+        stdoutLine(``);
+
+        for (const round of record.trace.rounds) {
+          stdoutLine(`───────────────────────────────────────────────────────────`);
+          stdoutLine(`Round ${round.round_number} (${round.messages.length} messages)`);
+          stdoutLine(`───────────────────────────────────────────────────────────`);
+
+          for (const msg of round.messages) {
+            const hashShort = msg.content_hash.slice(0, 8);
+            stdoutLine(`  [${msg.type}] ${msg.from}: ${msg.subject ?? "(no subject)"} (${msg.content_length} bytes, hash:${hashShort})`);
+          }
+
+          if (round.compiled_artifact_hash) {
+            stdoutLine(`  → Compiled artifact: ${round.compiled_artifact_hash.slice(0, 16)}...`);
+          }
+          stdoutLine(``);
+        }
+
+        stdoutLine(`═══════════════════════════════════════════════════════════`);
+        stdoutLine(`  OUTPUTS`);
+        stdoutLine(`═══════════════════════════════════════════════════════════`);
+        stdoutLine(`Hypotheses: ${record.outputs.hypothesis_count}`);
+        stdoutLine(`Tests: ${record.outputs.test_count}`);
+        stdoutLine(`Assumptions: ${record.outputs.assumption_count ?? 0}`);
+        stdoutLine(`Anomalies: ${record.outputs.anomaly_count ?? 0}`);
+        stdoutLine(`Critiques: ${record.outputs.critique_count ?? 0}`);
+        if (record.outputs.scorecard_grade) {
+          stdoutLine(`Grade: ${record.outputs.scorecard_grade} (${record.outputs.scorecard_points} pts)`);
+        }
+        stdoutLine(`Artifact hash: ${record.outputs.final_artifact_hash.slice(0, 16)}...`);
+        if (record.trace.interventions.length > 0) {
+          stdoutLine(`Interventions: ${record.trace.interventions.length}`);
+        }
+        stdoutLine(``);
+      }
+
+      process.exit(0);
+    }
+
+    // Verification and comparison modes require re-running agents — not yet implemented
+    throw new Error(`Replay mode "${mode}" is not yet implemented. Use --mode trace for step-through replay.`);
   }
 
   throw new Error(`Unknown command: ${[top, sub, action].filter(Boolean).join(" ")}`);

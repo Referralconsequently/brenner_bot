@@ -111,6 +111,35 @@ export {
 } from "./quick-start";
 export type { QuickStartStepData, ArtifactSectionData } from "./quick-start";
 
+// Multi-Agent Cockpit path content
+export {
+  // Path metadata
+  MULTI_AGENT_COCKPIT_PATH,
+  // Code blocks
+  MAC_CODE_BLOCKS,
+  // Troubleshooting
+  MAC_TROUBLESHOOTING,
+  // Checkpoints
+  MAC_CHECKPOINTS,
+  // Individual steps
+  MAC_STEP_1,
+  MAC_STEP_2,
+  MAC_STEP_3,
+  MAC_STEP_4,
+  MAC_STEP_5,
+  MAC_STEP_6,
+  MAC_STEP_7,
+  MAC_STEP_8,
+  MAC_STEP_9,
+  MAC_STEP_10,
+  // Helper functions
+  getAllMultiAgentSteps,
+  getMultiAgentStep,
+  getMACCodeBlock,
+  getMACTotalEstimatedTime,
+} from "./multi-agent";
+export type { MultiAgentStepData } from "./multi-agent";
+
 // Domain examples (worked artifacts)
 export {
   BIOLOGY_CELL_FATE_EXAMPLE,

@@ -18,6 +18,7 @@ import {
 import { computeThreadStatusFromThread, parseSubjectType } from "@/lib/threadStatus";
 import { parseDeltaMessage, type ValidDelta } from "@/lib/delta-parser";
 import { isDemoSession, getDemoSession, type DemoMessage, type DemoThreadSummary } from "@/lib/fixtures/demo-sessions";
+import { isRobotSession, getRobotSession, type RobotSessionDetail } from "@/lib/robot-sessions";
 import type { Metadata } from "next";
 import { LocalSessionHub } from "./LocalSessionHub";
 import { AgentTribunalPanel } from "@/components/brenner-loop/agents/AgentTribunalPanel";
@@ -525,6 +526,165 @@ function computeLintForLatestCompiled(params: {
   };
 }
 
+function RobotSessionDetailView({ session }: { session: RobotSessionDetail }) {
+  const { summary, meta, artifactMarkdown } = session;
+
+  // Compute aggregate stats
+  const totalAdds = meta.rounds.reduce((s, r) => s + r.adds, 0);
+  const totalKills = meta.rounds.reduce((s, r) => s + r.kills, 0);
+  const totalEdits = meta.rounds.reduce((s, r) => s + r.edits, 0);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-10">
+      {/* Robot Banner */}
+      <div className="rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/20 p-5 animate-fade-in-up">
+        <div className="flex items-start gap-4">
+          <div className="flex items-center justify-center size-10 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 shrink-0">
+            <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          </div>
+          <div className="space-y-2">
+            <h2 className="font-semibold text-violet-900 dark:text-violet-100">
+              Robot Mode Session
+            </h2>
+            <p className="text-sm text-violet-700 dark:text-violet-300">
+              Generated locally by <span className="font-mono">brenner session robot</span>.
+              {summary.roundsCompleted} round{summary.roundsCompleted !== 1 ? "s" : ""} completed.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <header className="space-y-3 animate-fade-in-up stagger-1">
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight">Session</h1>
+            <div className="text-sm text-muted-foreground font-mono">{summary.threadId}</div>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <Link href="/sessions" className="text-sm text-primary hover:underline">
+              All Sessions
+            </Link>
+          </div>
+        </div>
+        {meta.question && (
+          <div className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">Research Question:</span> {meta.question}
+          </div>
+        )}
+      </header>
+
+      {/* Status Grid */}
+      <section className="rounded-xl border border-border bg-card p-5 space-y-4 animate-fade-in-up stagger-2">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground">Phase</div>
+            <div className="font-semibold text-foreground">{summary.phase.replace(/_/g, " ")}</div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800">
+              robot mode
+            </span>
+            {summary.hasArtifact && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success/15 text-success border border-success/20">
+                artifact v{meta.finalArtifactVersion}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-4">
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Rounds</div>
+            <div className="mt-1 text-lg font-bold text-foreground">{summary.roundsCompleted}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Hypotheses</div>
+            <div className="mt-1 text-lg font-bold text-foreground">
+              {summary.activeHypotheses} active
+              {summary.killedHypotheses > 0 && (
+                <span className="text-sm font-normal text-muted-foreground"> / {summary.killedHypotheses} killed</span>
+              )}
+            </div>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Operations</div>
+            <div className="mt-1 text-sm font-mono text-foreground">
+              +{totalAdds} / ~{totalEdits} / -{totalKills}
+            </div>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Agents</div>
+            <div className="mt-1 text-sm font-mono text-foreground">{summary.participants.join(", ")}</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Round-by-Round Timeline */}
+      <section className="space-y-4 animate-fade-in-up stagger-3">
+        <h2 className="text-lg font-semibold tracking-tight">Round Timeline</h2>
+        <div className="space-y-3">
+          {meta.rounds.map((round) => (
+            <div key={round.round} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 border border-primary/20">
+                    <span className="text-sm font-bold text-primary">{round.round}</span>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-foreground">Round {round.round}</div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      +{round.adds} adds / ~{round.edits} edits / -{round.kills} kills
+                      {round.errors > 0 && <span className="text-warning"> / {round.errors} errors</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {round.converged && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success/15 text-success border border-success/20">
+                      converged
+                    </span>
+                  )}
+                </div>
+              </div>
+              {round.reason && (
+                <div className="mt-2 text-xs text-muted-foreground">{round.reason}</div>
+              )}
+              <div className="mt-3 flex flex-wrap gap-2">
+                {Object.entries(round.agents).map(([agent, info]) => (
+                  <span
+                    key={agent}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono ${
+                      info.status === "ok"
+                        ? "bg-muted text-foreground border border-border"
+                        : "bg-warning/15 text-warning border border-warning/20"
+                    }`}
+                  >
+                    {agent}: {info.deltas} deltas
+                    {info.error && ` (${info.error})`}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Compiled Artifact */}
+      {artifactMarkdown && (
+        <section className="space-y-3 animate-fade-in-up stagger-4">
+          <h2 className="text-lg font-semibold tracking-tight">Compiled Artifact</h2>
+          <div className="rounded-xl border border-border bg-card p-5">
+            <MarkdownBody body={artifactMarkdown} />
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
 export default async function SessionDetailPage({
   params,
 }: {
@@ -549,6 +709,36 @@ export default async function SessionDetailPage({
         summary={demoSession.summary}
       />
     );
+  }
+
+  // Handle robot mode sessions (produced by `brenner session robot`)
+  if (isRobotSession(threadId)) {
+    const robotSession = await getRobotSession(threadId);
+    if (!robotSession) {
+      return (
+        <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
+          <div className="rounded-2xl border border-border bg-card p-8">
+            <div className="flex items-start gap-4">
+              <div className="flex items-center justify-center size-12 rounded-xl bg-muted border border-border text-muted-foreground">
+                <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h1 className="text-xl font-bold tracking-tight text-foreground">Robot Session Not Found</h1>
+                <p className="text-sm text-muted-foreground">
+                  Could not find session directory for <span className="font-mono text-foreground">{threadId}</span>.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="text-center">
+            <Link href="/sessions" className="text-primary hover:underline">Back to Sessions</Link>
+          </div>
+        </div>
+      );
+    }
+    return <RobotSessionDetailView session={robotSession} />;
   }
 
   if (!isLabModeEnabled()) {
