@@ -706,14 +706,14 @@ describe("integration tests", () => {
     client = new AgentMailClient();
   });
 
-  it.skipIf(async () => !(await isAgentMailAvailable()))("can call toolsList when server is running", async () => {
+  it("can call toolsList when server is running", async () => {
     if (!serverAvailable) return;
 
     const result = await client.toolsList();
     expect(result).toBeDefined();
   });
 
-  it.skipIf(async () => !(await isAgentMailAvailable()))("toolsList returns tools array", async () => {
+  it("toolsList returns tools array", async () => {
     if (!serverAvailable) return;
 
     const result = await client.toolsList();
