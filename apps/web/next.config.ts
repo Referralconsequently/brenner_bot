@@ -28,6 +28,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Caddy reverse-proxies at /brenner/* — basePath ensures all asset URLs
+  // (/_next/static/...) are emitted as /brenner/_next/static/... so they
+  // match Caddy's handle_path routing.
+  basePath: "/brenner",
   async headers() {
     return [
       {
